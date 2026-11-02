@@ -47,9 +47,9 @@ test("the CSP frames the tools' hosts and nothing frames this page", async () =>
   const hd = await readFile(new URL("../public/_headers", import.meta.url), "utf8");
   assert.ok(hd.includes("frame-src 'self' " + FRAME_SRC), FRAME_SRC);
   assert.ok(hd.includes("frame-ancestors 'none'"));
-  assert.match(hd, //assets/share/*
+  assert.ok(hd.includes(`/assets/share/*
   ! Cache-Control
-  Cache-Control: public, max-age=0, must-revalidate/, "the share dialog revalidates (contract §4)");
+  Cache-Control: public, max-age=0, must-revalidate`), "the share dialog revalidates");
 });
 
 test("shared reports are not indexed, the pages are", async () => {
