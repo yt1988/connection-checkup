@@ -19,7 +19,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   const K = { theme: "checkup:theme", lang: "checkup:lang", auto: "checkup:auto" };
   const Q = new URLSearchParams(location.search);
-  const MOCK = Q.get("mock") === "1";
+  const MOCK = ["1", "block", "silent"].includes(Q.get("mock")), MOCK_MODE = Q.get("mock");
   const DEV = /^(localhost|127\.|\[)/.test(location.hostname);
 
   /* ---------- theme and language (synced across the 1ms.dog tools) ---------- */
@@ -71,6 +71,10 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
   const card = id => $(`.tool[data-tool="${id}"]`), chip = id => $(`#chips li[data-tool="${id}"]`);
   const S = { status: {}, results: {}, errors: {}, frames: {}, heights: {}, pct: {} };   // status: wait | run | done | timeout | error | na | stopped
   let RUN = null, LAST = null, OV = null, TIMER = null, SHARED = false, PHASE = 0;
+  // Blocked: an ad blocker (uBlock, AdGuard…) stops the tools' probes, and they fail or say nothing. The run ends as
+  // soon as that is clear, instead of waiting out every phase: nothing heard SILENCE ms into the first phase, or more
+  // than half of a phase's tools failing (docs/checkup.md).
+  const SILENCE = 30000;
   const TITLE = document.title;
   const mbps = v => v >= 10 ? String(Math.round(v)) : v.toFixed(1);
 
@@ -98,6 +102,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
   function handle(id, d) {
     if (!RUN || S.status[id] !== "run") return;
     const c = card(id);
+    if (d.type === "progress" || d.type === "result") RUN.heard = true;
     if (d.type === "progress") {
       const total = typeof d.total === "number" && d.total > 0 ? d.total : 100;
       if (typeof d.done === "number") { S.pct[id] = Math.round(100 * Math.max(0, Math.min(1, d.done / total))); chip(id).querySelector("em").textContent = S.pct[id] + "%"; }
@@ -119,7 +124,9 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
       setStatus(id, "error");
       c.querySelector("[data-err]").textContent = S.errors[id];
       liveLine();
+      if (phaseBlocked()) { RUN.blocked = true; settle.pending.clear(); }
       done(id);
+      if (RUN && RUN.blocked && settle.resolve) settle.resolve();
     }
   }
   // only messages from the frame this page opened for that tool, from the tool's own origin, in the checkup's format
@@ -146,6 +153,8 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
   async function mockRun(id, slot) {
     slot.innerHTML = `<div class="mock"><span data-mtxt>…</span><div class="mbar"><i></i></div></div>`;
     const bar = slot.querySelector(".mbar i"), txt = slot.querySelector("[data-mtxt]");
+    if (MOCK_MODE === "silent") return;
+    if (MOCK_MODE === "block") { await new Promise(r => setTimeout(r, 600)); return handle(id, { type: "error", text: "Failed to fetch" }); }
     if (!MOCKS) MOCKS = await fetch(D.mock).then(r => r.json()).catch(() => ({}));
     const msg = MOCKS[id], steps = id === "speed" ? 12 : 6, me = RUN;
     for (let i = 1; i <= steps; i++) {
@@ -157,6 +166,8 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     if (msg) handle(id, msg); else handle(id, { type: "error", text: "no sample result" });
   }
 
+  // more than half of this phase's tools failed
+  const phaseBlocked = () => { const ids = PHASES[PHASE] || []; return ids.filter(id => S.status[id] === "error").length * 2 > ids.length; };
   const wait = (ids, ms) => new Promise(res => {
     settle.pending = new Set(ids.filter(id => S.status[id] === "run")); settle.resolve = res;
     if (!settle.pending.size) return res();
@@ -176,6 +187,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     for (const s of SECTIONS) { const g = $("#sg-" + s.id); g.textContent = "–"; g.className = "sec-g"; delete g.dataset.g; $("#sh-" + s.id).className = "sec-head m"; $("#sh-" + s.id).innerHTML = "&nbsp;";
       $("#ss-" + s.id).replaceChildren(); $("#sf-" + s.id).replaceChildren(); $("#sl-" + s.id).replaceChildren(); }
     $("#toolsSum").textContent = "";
+    $("#blocked").hidden = true;
   }
   function setGo(st) { $("#go").dataset.st = st; $("#goT").textContent = t({ idle: "start", run: "stop", done: "again" }[st]); }
   const ring = f => { $("#vRing").style.strokeDasharray = `${(Math.min(1, Math.max(0, f)) * 100).toFixed(1)} 100`; };
@@ -218,7 +230,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     if (RUN) { RUN.abort = true; return; }
     if (SHARED) { SHARED = false; $("#shared").hidden = true; history.replaceState(null, "", D.paths[D.lang] + location.search); }
     reset();
-    const me = RUN = { abort: false, t0: performance.now() };
+    const me = RUN = { abort: false, t0: performance.now(), heard: false, blocked: false };
     $("#hero").dataset.st = "run"; $("#secs").hidden = true; $("#tools").hidden = false; $("#mockNote").hidden = !MOCK;
     $("#vGrade").className = "g-big wait";
     setGo("run");
@@ -233,8 +245,13 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
       for (const id of ids) launch(id);
       liveLine();
       const t0 = performance.now();
-      await Promise.race([wait(ids, PHASE_TIMEOUT), new Promise(r => { const iv = setInterval(() => { if (me.abort) { clearInterval(iv); r(); } }, 200); })]);
-      for (const id of ids) if (S.status[id] === "run") setStatus(id, me.abort ? "stopped" : "timeout");
+      await Promise.race([wait(ids, PHASE_TIMEOUT), new Promise(r => { const iv = setInterval(() => {
+        // the first phase: nothing at all from any tool for SILENCE ms means the probes are being stopped
+        if (i === 0 && !me.heard && performance.now() - t0 >= SILENCE) me.blocked = true;
+        if (me.abort || me.blocked) { clearInterval(iv); r(); }
+      }, 200); })]);
+      for (const id of ids) if (S.status[id] === "run") setStatus(id, me.abort || me.blocked ? "stopped" : "timeout");
+      if (me.blocked) break;
       if (!me.abort && performance.now() - t0 < 400) await new Promise(r => setTimeout(r, 400));   // let a quick phase be seen
     }
     for (const id of TOOLS) if (S.status[id] === "wait") setStatus(id, "stopped");
@@ -244,13 +261,19 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     const s = Math.round((performance.now() - me.t0) / 1000);
     $("#progTxt").textContent = me.abort ? t("prog_stopped") : t("prog_done", { s });
     prog(1);
-    finish();
+    finish(me.blocked);
   }
-  function finish() {
+  function finish(blocked) {
     const missing = {};
     for (const id of TOOLS) if (!S.results[id]) missing[id] = S.status[id];
     LAST = { v: 1, ts: Date.now(), lang: D.lang, tools: { ...S.results }, missing };
     render(LAST, false);
+    if (blocked) {
+      // what finished still counts; with nothing finished the sections would only say "not finished", so they go
+      $("#blocked").hidden = false;
+      $("#blocked").classList.toggle("none", !OV.done.length);   // the headline says it already
+      if (!OV.done.length) { $("#secs").hidden = true; $("#shareBtn").disabled = true; $("#vHead").className = "v-head bad"; $("#vHead").textContent = t("blocked_h"); }
+    }
     setGo("done");
     document.title = `${t("app_name")} ${OV.grade || "–"} · ${TITLE}`;
   }
@@ -315,6 +338,8 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     const c = b.closest(".tool"); toggleTool(c.dataset.tool, c.dataset.open !== "1");
   });
   $("#go").onclick = start;
+  // a fresh page after the visitor turns the blocker off: some extensions only let requests through after a reload
+  $("#retry").onclick = () => { location.href = D.paths[D.lang] + "?start=1" + (MOCK ? "&mock=1" : ""); };
   $("#testMine").onclick = () => { if (!RUN) start(); };
 
   /* ---------- share: the 1ms.dog share dialog (/assets/share/, copied verbatim from 1ms-shell), loaded on use ---------- */

@@ -56,3 +56,15 @@ test("the summary of a report, and the Worker's preview title", () => {
   assert.equal(titleParts(zh, sum).join(" · "), `网络透视 ${ov.grade} · IP 质量 A · 可用服务 30/33 · 下载 313 Mbps`);
   assert.equal(titleParts(en, decodeSummary(encodeSummary({ ts: 1, total: "B" }))).join(" · "), "Network X-Ray B");
 });
+
+test("an unreadable result code is a 404, never a redirect home (contract §4)", async () => {
+  const { default: worker } = await import("../src/worker.js");
+  const env = { ASSETS: { fetch: async () => { throw new Error("must not fetch the page for an unreadable code"); } } };
+  for (const p of ["/zh-cn/r/zz", "/r/zz", "/r/1~tnv0rh~B", "/ja/r/9~tnv0rh~B~F~B~B~A~A~73~24-33~396~19", "/zh-cn/r/1~tnv0rh~X~F~B~B~A~A~73~24-33~396~19"]) {
+    const r = await worker.fetch(new Request("https://check.1ms.dog" + p), env);
+    assert.equal(r.status, 404, p);
+    assert.ok(!(r.headers.get("content-type") || "").includes("html"), p + ": a bare 404, the shell draws the page");
+  }
+  const r = await worker.fetch(new Request("https://check.1ms.dog/nope"), env);
+  assert.equal(r.status, 404);
+});

@@ -47,6 +47,12 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 .v-sub { font-size: 13px; color: var(--muted); min-height: 1.5em; }
 .v-sub .n { font-weight: 500; }
 .v-miss { font-size: 12.5px; color: var(--warn); min-height: 1.5em; }
+/* the probes were blocked: a warning panel with the retry button */
+.blocked { display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; padding: 12px 14px 12px 16px; border-radius: 12px; background: var(--warn-soft); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warn) 45%, transparent); }
+.blocked p { flex: 1 1 320px; font-size: 13.5px; line-height: 1.55; }
+.blocked b { color: var(--warn); font-weight: 650; }
+.blocked .btn { flex: none; }
+.blocked.none b { display: none; }
 /* three key numbers */
 .keys { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .keys li { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px 11px; border-radius: 12px; border: 1px solid var(--line); min-width: 0; }

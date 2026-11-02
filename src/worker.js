@@ -2,7 +2,8 @@
 // files:
 //   /r/<summary>, /<lang>/r/<summary>   a shared report: that language's page with the grades in its title, description
 //                              and preview image (what chat apps show), not indexed; the page itself reads the summary,
-//                              and the full report after the # when the link carries one (src/share.mjs)
+//                              and the full report after the # when the link carries one (src/share.mjs). A summary
+//                              this page can't read is a bare 404, so search engines drop dead links
 //   anything else              a bare 404; 1ms-shell puts the shared 1ms.dog 404 page in front of it
 
 import { decodeSummary, sharePath } from "./share.mjs";
@@ -38,19 +39,22 @@ export default {
     if (req.method !== "GET" && req.method !== "HEAD") return new Response("Method not allowed\n", { status: 405 });
     const sp = sharePath(url.pathname);
     if (sp && STR[sp.slug] && env.ASSETS) return shared(req, env, url, sp);
-    return new Response(req.method === "HEAD" ? null : "Not found\n", {
-      status: 404,
-      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=0, must-revalidate" },
-    });
+    return notFound(req);
   },
 };
 
+const notFound = req => new Response(req.method === "HEAD" ? null : "Not found\n", {
+  status: 404,
+  headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=0, must-revalidate" },
+});
+
 // A shared report: the language's page as it is, with the title, description, their Open Graph and Twitter copies
-// and the preview image carrying the grades. A summary this page can't read goes to the language's page instead.
+// and the preview image carrying the grades. A summary this page can't read (a bad format, an unknown version, a
+// truncated link) is a 404, never a redirect home (1ms-shell docs/tool-contract.md §4).
 async function shared(req, env, url, { slug, code }) {
   const home = "/" + (slug ? slug + "/" : "");
   const r = decodeSummary(code);
-  if (!r) return Response.redirect(new URL(home, url).toString(), 302);
+  if (!r) return notFound(req);
   const S = STR[slug];
   const title = titleParts(S, r).join(" · ");
   const desc = fill(S.share_desc, { n: 8, total: r.total || "–" });
