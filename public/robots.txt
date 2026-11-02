@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /r/
+Disallow: /zh-cn/r/
+Disallow: /zh-tw/r/
+Disallow: /ja/r/
+Disallow: /ko/r/
+Disallow: /es/r/
+Disallow: /fr/r/
+Disallow: /de/r/
+Disallow: /pt/r/
+Disallow: /ru/r/
+
+Sitemap: https://check.1ms.dog/sitemap.xml

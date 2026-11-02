@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko" data-paths="{&quot;en&quot;:&quot;/&quot;,&quot;zh-CN&quot;:&quot;/zh-cn/&quot;,&quot;zh-TW&quot;:&quot;/zh-tw/&quot;,&quot;ja&quot;:&quot;/ja/&quot;,&quot;ko&quot;:&quot;/ko/&quot;,&quot;es&quot;:&quot;/es/&quot;,&quot;fr&quot;:&quot;/fr/&quot;,&quot;de&quot;:&quot;/de/&quot;,&quot;pt&quot;:&quot;/pt/&quot;,&quot;ru&quot;:&quot;/ru/&quot;}">
+<head>
+<meta charset="utf-8">
+<script>(function(){var d=document.documentElement,th=null,s=null;try{th=localStorage.getItem("checkup:theme");s=localStorage.getItem("checkup:lang")}catch(e){}if(th==="light"||th==="dark")d.setAttribute("data-theme",th);if(!d.hasAttribute("data-root"))return;var P=JSON.parse(d.getAttribute("data-paths")||"{}"),l=null;try{var q=new URLSearchParams(location.search).get("lang");if(P[q])l=q}catch(e){}if(!l&&P[s])l=s;for(var ls=navigator.languages||[navigator.language||"en"],i=0;!l&&!s&&i<ls.length;i++){var x=String(ls[i]).toLowerCase(),b=x.split("-")[0];l=b==="zh"?(/tw|hk|mo|hant/.test(x)?"zh-TW":"zh-CN"):P[b]?b:null}if(l&&l!=="en")location.replace(P[l]+location.search+location.hash)})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>회선 점검: IP 품질, 언락, 속도, 개인정보 유출, DNS를 한 번에 검사해 등급 보고서로 · 회선 점검</title>
+<meta name="description" content="인터넷 회선을 클릭 한 번으로 종합 점검: IP 품질과 평판, 스트리밍과 AI 언락, 다운로드와 업로드 속도, WebRTC와 DNS 유출, IPv6, 주요 서비스까지의 지연. 8가지 테스트를 약 90초에 이어서 실행하고 A부터 F까지 종합 등급과 공유 링크 하나로. 설치 없음.">
+<meta name="keywords" content="회선 점검, 인터넷 회선 테스트, 네트워크 점검, IP 점검, IP 품질 테스트, VPN 확인, 프록시 확인, 언락 테스트, 속도 측정, DNS 유출 테스트, IPv6 테스트">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="application-name" content="회선 점검">
+<meta name="theme-color" content="#f6f6f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1c1c" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://check.1ms.dog/ko/">
+<link rel="alternate" hreflang="en" href="https://check.1ms.dog/">
+<link rel="alternate" hreflang="zh-CN" href="https://check.1ms.dog/zh-cn/">
+<link rel="alternate" hreflang="zh-TW" href="https://check.1ms.dog/zh-tw/">
+<link rel="alternate" hreflang="ja" href="https://check.1ms.dog/ja/">
+<link rel="alternate" hreflang="ko" href="https://check.1ms.dog/ko/">
+<link rel="alternate" hreflang="es" href="https://check.1ms.dog/es/">
+<link rel="alternate" hreflang="fr" href="https://check.1ms.dog/fr/">
+<link rel="alternate" hreflang="de" href="https://check.1ms.dog/de/">
+<link rel="alternate" hreflang="pt" href="https://check.1ms.dog/pt/">
+<link rel="alternate" hreflang="ru" href="https://check.1ms.dog/ru/">
+<link rel="alternate" hreflang="x-default" href="https://check.1ms.dog/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="1ms.dog">
+<meta property="og:title" content="회선 점검: IP 품질, 언락, 속도, 개인정보 유출, DNS를 한 번에 검사해 등급 보고서로 · 회선 점검">
+<meta property="og:description" content="네트워크 테스트 8가지를 한 번에, 등급 하나, 링크 하나">
+<meta property="og:url" content="https://check.1ms.dog/ko/">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:image" content="https://check.1ms.dog/og/ko.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="회선 점검: IP 품질, 언락, 속도, 개인정보 유출, DNS를 한 번에 검사해 등급 보고서로 · 회선 점검">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://check.1ms.dog/og/ko.png">
+<meta name="twitter:title" content="회선 점검: IP 품질, 언락, 속도, 개인정보 유출, DNS를 한 번에 검사해 등급 보고서로 · 회선 점검">
+<meta name="twitter:description" content="네트워크 테스트 8가지를 한 번에, 등급 하나, 링크 하나">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"회선 점검 · 1ms.dog","url":"https://check.1ms.dog/ko/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"인터넷 회선을 클릭 한 번으로 종합 점검: IP 품질과 평판, 스트리밍과 AI 언락, 다운로드와 업로드 속도, WebRTC와 DNS 유출, IPv6, 주요 서비스까지의 지연. 8가지 테스트를 약 90초에 이어서 실행하고 A부터 F까지 종합 등급과 공유 링크 하나로. 설치 없음.","inLanguage":"ko","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"회선 점검은 무엇을 하나요?","acceptedAnswer":{"@type":"Answer","text":"이 페이지 안에서 1ms.dog의 도구 8개를 차례로 실행하고 결과를 보고서 하나로 합칩니다: 당신은 누구(웹사이트가 알아낼 수 있는 것), IP 품질 테스트, 출구 IP 돋보기(사이트마다 보이는 출구), IPv6 테스트, DNS 테스트, 스트리밍/AI 언락 체크, 1ms.dog의 서비스 지연 테스트, 인터넷 속도 측정. 각 도구는 자기 프레임에서 실행되어 진행 상황과 결과를 직접 보여 주고 숫자를 이 페이지에 넘깁니다. 두 번 측정하거나 단순화하지 않습니다. 여기의 숫자는 도구가 직접 표시하는 숫자입니다."}},{"@type":"Question","name":"왜 3단계로 약 90초가 걸리나요?","acceptedAnswer":{"@type":"Answer","text":"지연과 DNS 측정은 다른 트래픽에 민감해서 대역폭 테스트는 맨 마지막에 단독으로 실행합니다. 1단계는 신원, IP, 출구, IPv6, DNS를 동시에, 2단계는 언락과 서비스 지연, 3단계는 속도입니다. 각 단계는 도구가 모두 응답하거나 90초가 지날 때까지 기다립니다. 제때 응답하지 않은 도구는 '미완료'로 표시되고 등급에서 제외됩니다."}},{"@type":"Question","name":"등급은 어떻게 계산하나요?","acceptedAnswer":{"@type":"Answer","text":"다섯 섹션을 각각 A+부터 F까지 평가합니다: IP 품질 25%, 언락 20%, 속도 20%, 신원과 개인정보 20%, 연결성(IPv6, DNS, 서비스 지연) 15%. 종합 등급은 완료된 섹션의 가중 평균이며, 완료되지 않은 섹션은 제외하고 보고서에 표시합니다. 자체 등급을 내는 도구(IP 품질, IPv6)는 그 등급을 그대로 쓰고, 나머지는 사실로 점수를 매깁니다: 사용 가능한 서비스 수, 다운로드 속도와 부하 시 지연 증가, 유출이나 불일치 여부, DNS와 주요 서비스의 속도."}},{"@type":"Question","name":"'종합 소견'이란 무엇인가요?","acceptedAnswer":{"@type":"Answer","text":"결과를 나란히 놓아야 보이는 결론이 있습니다: 데이터센터 IP와 다른 나라의 시스템 시간대(불완전한 위장), 제한 지역 출구에서 AI 서비스 전부 차단, AI와 스트리밍이 다른 나라를 거치는 분기 라우팅, DNS와 출구의 지역 불일치, 다운로드 중 지연 급증. 이런 것들을 보고서 맨 위에 둡니다."}},{"@type":"Question","name":"내 데이터가 브라우저 밖으로 나가나요?","acceptedAnswer":{"@type":"Answer","text":"각 도구는 평소처럼 브라우저 안에서 실행됩니다. 이 페이지는 브라우저의 프레임 간 메시지로 결과를 받을 뿐이며, 자신이 연 도구에서 온 메시지만 받습니다. 공유 링크는 브라우저에서 만들어지며 등급과 각 도구의 결과 링크만 담고 IP 주소는 담지 않습니다. 각 도구의 결과 링크는 그 도구의 개인정보 기본값을 따르며 기본적으로 주소를 제외합니다."}},{"@type":"Question","name":"IPQuality, NodeQuality 같은 스크립트와 무엇이 다른가요?","acceptedAnswer":{"@type":"Answer","text":"그런 스크립트는 SSH로 서버에서 실행되어 서버 자신의 IP만 테스트할 수 있습니다. 회선 점검은 브라우저에서 실행되므로 지금 쓰고 있는 바로 그 회선을 측정합니다: 집 회선, 휴대폰, 프록시나 에어포트 노드. 서버 스크립트가 볼 수 없는 시간대, 언어, WebRTC도 봅니다. 공유할 링크와 카드도 만들어 줍니다."}}]}]}</script>
+<link rel="preload" href="/assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/app.dcfc3eef31.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <a class="brand" href="/ko/" aria-current="page">
+      <span class="logo"><img class="logo-light" src="/assets/logo-light.svg" width="90" height="36" alt="1ms.dog" loading="lazy"><img class="logo-dark" src="/assets/logo-dark.svg" width="90" height="36" alt="1ms.dog" loading="lazy"></span>
+      <span class="brand-name" data-i="app_name">회선 점검</span>
+    </a>
+    <div class="top-acts">
+      <label class="sel"><span class="sr" data-i="lang_label">언어</span>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M1.5 8h13M8 1.5c2 2 2.8 4 2.8 6.5S10 12.5 8 14.5C6 12.5 5.2 10.5 5.2 8S6 3.5 8 1.5z"/></svg>
+        <select id="lang"><option value="en">English</option><option value="zh-CN">简体中文</option><option value="zh-TW">繁體中文</option><option value="ja">日本語</option><option value="ko" selected>한국어</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="pt">Português</option><option value="ru">Русский</option></select>
+      </label>
+      <button class="icon-btn" id="helpBtn" type="button" aria-haspopup="dialog" aria-controls="help"><span class="sr" data-i="faq_h">도움말</span>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M6.3 6.2a1.8 1.8 0 1 1 2.5 1.7c-.5.2-.8.6-.8 1.1v.4M8 11.3v.1"/></svg>
+      </button>
+      <a class="icon-btn gh" href="https://github.com/yt1988/connection-checkup" target="_blank" rel="noopener noreferrer" title="GitHub" aria-label="GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .2a8 8 0 0 0-2.5 15.6c.4 0 .5-.2.5-.4v-1.5c-2.2.5-2.7-1-2.7-1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.3 1.9.9 2.4.7 0-.5.3-.9.5-1.1-1.8-.2-3.6-.9-3.6-4 0-.9.3-1.6.8-2.1-.1-.2-.4-1 .1-2.1 0 0 .7-.2 2.2.8a7.4 7.4 0 0 1 4 0c1.5-1 2.2-.8 2.2-.8.4 1.1.2 1.9.1 2.1.5.6.8 1.3.8 2.1 0 3.1-1.9 3.7-3.6 3.9.3.3.6.8.6 1.5v2.2c0 .2.1.5.6.4A8 8 0 0 0 8 .2z"/></svg></a>
+      <button class="icon-btn" id="theme" type="button" aria-label="테마">
+        <svg class="i-sys" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="9" rx="1.5"/><path d="M5.5 14h5M8 11.5V14"/></svg>
+        <svg class="i-light" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3"/></svg>
+        <svg class="i-dark" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 9.8A5.8 5.8 0 0 1 6.2 2.5a5.8 5.8 0 1 0 7.3 7.3z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="shared" id="shared" hidden><span><span id="sharedTxt"></span><span class="m" id="sharedNote"></span></span><button class="btn pri" id="testMine" type="button" data-i="test_mine">내 회선 점검하기</button></div>
+    <section class="hero card" id="hero" data-st="idle">
+      <h1>내 회선은 건강할까?</h1>
+      <p class="intro"><span data-i="intro">1ms.dog의 테스트 8가지를 한 번에 실행합니다: 웹사이트가 보는 나, IP 품질, 출구, IPv6, DNS, 언락, 서비스 지연, 속도. 각 도구가 직접 측정하고 결과를 보여 주며, 마지막에 종합 등급 하나로 정리합니다.</span><b data-i="intro_time">약 90초. 마지막 속도 측정은 데이터를 조금 사용합니다.</b></p>
+      <ul class="chips" aria-hidden="true"><li><i></i>당신은 누구</li><li><i></i>IP 품질 테스트</li><li><i></i>출구 IP 돋보기</li><li><i></i>IPv6 테스트</li><li><i></i>DNS 테스트</li><li><i></i>스트리밍/AI 언락 체크</li><li><i></i>1ms.dog</li><li><i></i>인터넷 속도 측정</li></ul>
+      <!-- the verdict: the overall grade, one sentence, the numbers behind it -->
+      <div class="verdict">
+        <div class="g-big" id="vGrade">–</div>
+        <div class="v-text"><p class="v-head" id="vHead">&nbsp;</p><p class="v-sub" id="vSub">&nbsp;</p><p class="v-miss" id="vMiss"></p></div>
+      </div>
+      <ul class="keys" id="keys">
+        <li><span data-i="k_ipqs">IP 품질</span><b id="kIpqs">–</b><em id="kIpqsS"></em></li>
+        <li><span data-i="k_unlock">사용 가능 서비스</span><b id="kUnlock">–</b><em id="kUnlockS"></em></li>
+        <li><span data-i="k_down">다운로드</span><b id="kDown">–</b><em id="kDownS"></em></li>
+      </ul>
+      <p class="cross-h" id="crossH" data-i="cross_h" hidden>종합 소견</p>
+      <ul class="finds" id="finds"></ul>
+      <div class="bar">
+        <span class="prog-t" id="progTxt">&nbsp;</span>
+        <button class="btn sm" id="shareBtn" type="button" aria-haspopup="dialog" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 10V2M5 5l3-3 3 3M3 9v4.5h10V9"/></svg><span data-i="share">공유</span></button>
+        <button class="btn pri go" id="go" type="button" data-st="idle"><span id="goT" data-i="start">점검 시작</span></button>
+        <div class="prog" aria-hidden="true"><i id="progBar"></i></div>
+      </div>
+    </section>
+
+    <section class="secs" id="secs" hidden><article class="sec card" data-sec="privacy"><div class="sec-h"><span class="sec-g" id="sg-privacy">–</span><h2>신원과 개인정보</h2><span class="w">가중치 20%</span></div><p class="sec-head m" id="sh-privacy">&nbsp;</p><ul class="stats" id="ss-privacy"></ul><ul class="finds" id="sf-privacy"></ul><p class="sec-links" id="sl-privacy"></p></article><article class="sec card" data-sec="ipqs"><div class="sec-h"><span class="sec-g" id="sg-ipqs">–</span><h2>IP 품질</h2><span class="w">가중치 25%</span></div><p class="sec-head m" id="sh-ipqs">&nbsp;</p><ul class="stats" id="ss-ipqs"></ul><ul class="finds" id="sf-ipqs"></ul><p class="sec-links" id="sl-ipqs"></p></article><article class="sec card" data-sec="unlock"><div class="sec-h"><span class="sec-g" id="sg-unlock">–</span><h2>언락</h2><span class="w">가중치 20%</span></div><p class="sec-head m" id="sh-unlock">&nbsp;</p><ul class="stats" id="ss-unlock"></ul><ul class="finds" id="sf-unlock"></ul><p class="sec-links" id="sl-unlock"></p></article><article class="sec card" data-sec="conn"><div class="sec-h"><span class="sec-g" id="sg-conn">–</span><h2>연결성</h2><span class="w">가중치 15%</span></div><p class="sec-head m" id="sh-conn">&nbsp;</p><ul class="stats" id="ss-conn"></ul><ul class="finds" id="sf-conn"></ul><p class="sec-links" id="sl-conn"></p></article><article class="sec card" data-sec="speed"><div class="sec-h"><span class="sec-g" id="sg-speed">–</span><h2>속도</h2><span class="w">가중치 20%</span></div><p class="sec-head m" id="sh-speed">&nbsp;</p><ul class="stats" id="ss-speed"></ul><ul class="finds" id="sf-speed"></ul><p class="sec-links" id="sl-speed"></p></article></section>
+    <section class="tools" id="tools" hidden><article class="tool card" data-tool="who" data-st="wait" data-open="1"><div class="t-h"><span class="t-name">당신은 누구</span><span class="t-st" data-st-txt>대기</span><span class="t-head" data-head></span><button class="btn t-tog" type="button" data-tog aria-expanded="true"><span data-tog-txt>도구 접기</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="t-body"><div data-frame></div><div class="t-res" data-res></div><p class="t-err" data-err></p></div></article><article class="tool card" data-tool="ipqs" data-st="wait" data-open="1"><div class="t-h"><span class="t-name">IP 품질 테스트</span><span class="t-st" data-st-txt>대기</span><span class="t-head" data-head></span><button class="btn t-tog" type="button" data-tog aria-expanded="true"><span data-tog-txt>도구 접기</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="t-body"><div data-frame></div><div class="t-res" data-res></div><p class="t-err" data-err></p></div></article><article class="tool card" data-tool="egress" data-st="wait" data-open="1"><div class="t-h"><span class="t-name">출구 IP 돋보기</span><span class="t-st" data-st-txt>대기</span><span class="t-head" data-head></span><button class="btn t-tog" type="button" data-tog aria-expanded="true"><span data-tog-txt>도구 접기</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="t-body"><div data-frame></div><div class="t-res" data-res></div><p class="t-err" data-err></p></div></article><article class="tool card" data-tool="ipv6" data-st="wait" data-open="1"><div class="t-h"><span class="t-name">IPv6 테스트</span><span class="t-st" data-st-txt>대기</span><span class="t-head" data-head></span><button class="btn t-tog" type="button" data-tog aria-expanded="true"><span data-tog-txt>도구 접기</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="t-body"><div data-frame></div><div class="t-res" data-res></div><p class="t-err" data-err></p></div></article><article class="tool card" data-tool="dns" data-st="wait" data-open="1"><div class="t-h"><span class="t-name">DNS 테스트</span><span class="t-st" data-st-txt>대기</span><span class="t-head" data-head></span><button class="btn t-tog" type="button" data-tog aria-expanded="true"><span data-tog-txt>도구 접기</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="t-body"><div data-frame></div><div class="t-res" data-res></div><p class="t-err" data-err></p></div></article><article class="tool card" data-tool="unlock" data-st="wait" data-open="1"><div class="t-h"><span class="t-name">스트리밍/AI 언락 체크</span><span class="t-st" data-st-txt>대기</span><span class="t-head" data-head></span><button class="btn t-tog" type="button" data-tog aria-expanded="true"><span data-tog-txt>도구 접기</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="t-body"><div data-frame></div><div class="t-res" data-res></div><p class="t-err" data-err></p></div></article><article class="tool card" data-tool="home" data-st="wait" data-open="1"><div class="t-h"><span class="t-name">1ms.dog</span><span class="t-st" data-st-txt>대기</span><span class="t-head" data-head></span><button class="btn t-tog" type="button" data-tog aria-expanded="true"><span data-tog-txt>도구 접기</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="t-body"><div data-frame></div><div class="t-res" data-res></div><p class="t-err" data-err></p></div></article><article class="tool card" data-tool="speed" data-st="wait" data-open="1"><div class="t-h"><span class="t-name">인터넷 속도 측정</span><span class="t-st" data-st-txt>대기</span><span class="t-head" data-head></span><button class="btn t-tog" type="button" data-tog aria-expanded="true"><span data-tog-txt>도구 접기</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div><div class="t-body"><div data-frame></div><div class="t-res" data-res></div><p class="t-err" data-err></p></div></article></section>
+    <p class="mock-note" id="mockNote" hidden data-i="mock_note">데모 데이터이며 실제 측정이 아닙니다</p>
+
+    <div data-ms-more></div>
+  </main>
+</div>
+<div class="scrim" id="help" hidden>
+  <div class="dialog help" role="dialog" aria-modal="true" aria-labelledby="helpT">
+    <div class="dlg-h"><h2 id="helpT" data-i="faq_h">도움말</h2>
+      <button class="icon-btn" data-close type="button" aria-label="닫기"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <div class="help-b">
+      <nav class="help-nav" id="helpNav" role="tablist"><button type="button" role="tab" data-hq="0" aria-selected="true">회선 점검은 무엇을 하나요?</button><button type="button" role="tab" data-hq="1" aria-selected="false">왜 3단계로 약 90초가 걸리나요?</button><button type="button" role="tab" data-hq="2" aria-selected="false">등급은 어떻게 계산하나요?</button><button type="button" role="tab" data-hq="3" aria-selected="false">'종합 소견'이란 무엇인가요?</button><button type="button" role="tab" data-hq="4" aria-selected="false">내 데이터가 브라우저 밖으로 나가나요?</button><button type="button" role="tab" data-hq="5" aria-selected="false">IPQuality, NodeQuality 같은 스크립트와 무엇이 다른가요?</button></nav>
+      <div class="help-pick">
+        <button class="icon-btn" type="button" data-hstep="-1" aria-label="이전"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 4L6 8l4 4"/></svg></button>
+        <select id="helpSel" aria-labelledby="helpT"></select>
+        <button class="icon-btn" type="button" data-hstep="1" aria-label="다음"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg></button>
+      </div>
+      <div class="help-c" id="helpC"><article data-hqb="0"><h3>회선 점검은 무엇을 하나요?</h3><p>이 페이지 안에서 1ms.dog의 도구 8개를 차례로 실행하고 결과를 보고서 하나로 합칩니다: 당신은 누구(웹사이트가 알아낼 수 있는 것), IP 품질 테스트, 출구 IP 돋보기(사이트마다 보이는 출구), IPv6 테스트, DNS 테스트, 스트리밍/AI 언락 체크, 1ms.dog의 서비스 지연 테스트, 인터넷 속도 측정.</p><p>각 도구는 자기 프레임에서 실행되어 진행 상황과 결과를 직접 보여 주고 숫자를 이 페이지에 넘깁니다. 두 번 측정하거나 단순화하지 않습니다. 여기의 숫자는 도구가 직접 표시하는 숫자입니다.</p></article><article data-hqb="1" hidden><h3>왜 3단계로 약 90초가 걸리나요?</h3><p>지연과 DNS 측정은 다른 트래픽에 민감해서 대역폭 테스트는 맨 마지막에 단독으로 실행합니다. 1단계는 신원, IP, 출구, IPv6, DNS를 동시에, 2단계는 언락과 서비스 지연, 3단계는 속도입니다.</p><p>각 단계는 도구가 모두 응답하거나 90초가 지날 때까지 기다립니다. 제때 응답하지 않은 도구는 '미완료'로 표시되고 등급에서 제외됩니다.</p></article><article data-hqb="2" hidden><h3>등급은 어떻게 계산하나요?</h3><p>다섯 섹션을 각각 A+부터 F까지 평가합니다: IP 품질 25%, 언락 20%, 속도 20%, 신원과 개인정보 20%, 연결성(IPv6, DNS, 서비스 지연) 15%. 종합 등급은 완료된 섹션의 가중 평균이며, 완료되지 않은 섹션은 제외하고 보고서에 표시합니다.</p><p>자체 등급을 내는 도구(IP 품질, IPv6)는 그 등급을 그대로 쓰고, 나머지는 사실로 점수를 매깁니다: 사용 가능한 서비스 수, 다운로드 속도와 부하 시 지연 증가, 유출이나 불일치 여부, DNS와 주요 서비스의 속도.</p></article><article data-hqb="3" hidden><h3>'종합 소견'이란 무엇인가요?</h3><p>결과를 나란히 놓아야 보이는 결론이 있습니다: 데이터센터 IP와 다른 나라의 시스템 시간대(불완전한 위장), 제한 지역 출구에서 AI 서비스 전부 차단, AI와 스트리밍이 다른 나라를 거치는 분기 라우팅, DNS와 출구의 지역 불일치, 다운로드 중 지연 급증. 이런 것들을 보고서 맨 위에 둡니다.</p></article><article data-hqb="4" hidden><h3>내 데이터가 브라우저 밖으로 나가나요?</h3><p>각 도구는 평소처럼 브라우저 안에서 실행됩니다. 이 페이지는 브라우저의 프레임 간 메시지로 결과를 받을 뿐이며, 자신이 연 도구에서 온 메시지만 받습니다. 공유 링크는 브라우저에서 만들어지며 등급과 각 도구의 결과 링크만 담고 IP 주소는 담지 않습니다. 각 도구의 결과 링크는 그 도구의 개인정보 기본값을 따르며 기본적으로 주소를 제외합니다.</p></article><article data-hqb="5" hidden><h3>IPQuality, NodeQuality 같은 스크립트와 무엇이 다른가요?</h3><p>그런 스크립트는 SSH로 서버에서 실행되어 서버 자신의 IP만 테스트할 수 있습니다. 회선 점검은 브라우저에서 실행되므로 지금 쓰고 있는 바로 그 회선을 측정합니다: 집 회선, 휴대폰, 프록시나 에어포트 노드. 서버 스크립트가 볼 수 없는 시간대, 언어, WebRTC도 봅니다. 공유할 링크와 카드도 만들어 줍니다.</p></article></div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="data">{"lang":"ko","paths":{"en":"/","zh-CN":"/zh-cn/","zh-TW":"/zh-tw/","ja":"/ja/","ko":"/ko/","es":"/es/","fr":"/fr/","de":"/de/","pt":"/pt/","ru":"/ru/"},"names":{"who":"당신은 누구","ipqs":"IP 품질 테스트","egress":"출구 IP 돋보기","ipv6":"IPv6 테스트","dns":"DNS 테스트","unlock":"스트리밍/AI 언락 체크","home":"1ms.dog","speed":"인터넷 속도 측정"},"mock":"/assets/mock.8e3011f032.json"}</script>
+<script src="/assets/l.ko.d88abf652c.js"></script>
+<script src="/assets/app.be40b71053.js"></script>
+</body>
+</html>

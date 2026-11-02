@@ -1,0 +1,66 @@
+# 线路体检
+
+[English](README.md) · **简体中文**
+
+你的线路到底健不健康？[线路体检](https://check.1ms.dog/zh-cn/)在浏览器里一次跑完 1ms.dog 的 8 个网络工具，把结果合成一份带等级的报告：网站眼中的你、IP 质量、每个网站看到的出口、IPv6、DNS、流媒体和 AI 解锁、到常用服务的延迟、网速。约 90 秒，一个 A+ 到 F 的总等级，一个链接、一张卡片可以分享。
+
+**在线使用：** https://check.1ms.dog/zh-cn/
+
+IPQuality、NodeQuality 这类脚本要 SSH 到服务器上跑，只能测服务器自己的 IP；线路体检测的是你此刻用的这条线：家里的宽带、手机、代理或机场节点，还能看到服务器脚本看不到的时区、语言和 WebRTC。
+
+## 怎么跑
+
+报告页把每个工具自己的页面加上 `?embed=checkup` 用 iframe 嵌进来，让它照常跑：工具在框里显示自己的进度和结果，再用 `postMessage` 把数字回传。没有重复测量，这里也没有任何测量代码。协议（消息格式、每个工具给的 `facts` 键）在 1ms-shell 的 `docs/checkup.md`。
+
+| | |
+|---|---|
+| **第 1 步** | 你是谁、IP 质量测试、出口照妖镜、IPv6 测试、DNS 测试，并行 |
+| **第 2 步** | 流媒体/AI 解锁检测、1ms.dog 服务延迟，并行 |
+| **第 3 步** | 网速测试，单独跑，避免带宽测试干扰延迟测量 |
+
+每一步等全部工具回传或 90 秒超时。没回传的工具标为「未完成」，不计入等级。页面只接收自己打开的那些 iframe、来自各工具自己的源、符合体检格式的消息。
+
+### 报告
+
+五个分区，各按工具自带的等级或事实评 A+ 到 F（`src/report.mjs`），再按权重合成总等级：IP 质量 25、解锁 20、速度 20、身份与隐私（你是谁、出口照妖镜）20、连通（IPv6、DNS、服务延迟）15。没跑完的分区不计入并写明。每张分区卡片：一句结论、2 到 4 个数字、最多 4 条发现、指向工具完整结果的链接。
+
+7 条跨工具发现放在最上面：伪装不彻底（机房 IP 配不一致的时区）、真实 IP 泄露、分流生效（AI 和流媒体走不同国家）、出口在受限地区导致 AI 不可用、DNS 和出口不在同一地区、线路拥塞（缓冲膨胀加上服务延迟高）、IPv6 拖慢访问。
+
+### 分享
+
+链接格式 `/<语言目录>/r/<摘要>#<完整>`（`src/share.mjs`）。路径里的摘要不到 100 个字符，带格式版本号、各等级和关键数字：Worker 读它给链接出预览标题（「线路体检 B · IP 质量 A · 可用服务 24/33 · 下载 313 Mbps」）、描述和按等级选的预览图。`#` 后面的完整部分（每个工具的结果链接、结论、数字、发现和 facts，base64url 的 JSON）不会到服务器；页面靠它复现整份报告。只有路径的链接显示摘要，并注明完整细节未包含。分享弹窗用 1ms.dog 的公共组件（`public/assets/share/`，原样复制自 1ms-shell）；卡片上是总等级、五个分区和最重要的几条发现。
+
+### 工具的地址
+
+页面从 1ms.dog shell 注入的 `<meta name="<id>" content="https://…">` 读每个工具的地址。没有这些 meta（自部署）时工具标为不可用；本地开发用 `src/tools.mjs` 里的地址兜底。`?mock=1` 用 `test/fixtures/` 里的样例结果喂报告页，不嵌入工具，报告、链接和图片都是这样开发的；`?start=1` 打开页面就开始体检。
+
+## 文件
+
+```
+src/tools.mjs       工具、阶段、分区和权重，工具的 10 种语言名字
+src/report.mjs      打分、分区和总等级、跨工具规则；纯函数，有单元测试
+src/share.mjs       报告进链接（摘要 + 完整），以及解析
+src/app.js          页面：运行器、消息处理、报告、分享卡片
+src/worker.js       /r/<摘要> 的预览；其他路径返回纯文本 404
+src/i18n/*.mjs      10 种语言
+scripts/build.mjs   生成 public/（页面、资源、mock 数据、带工具域名 frame-src 的 CSP）
+scripts/assets.mjs  链接预览图（public/og/：每种语言一张，再加每种语言每个等级一张）
+test/fixtures/      每个工具一条 result 消息，就是工具实际回传的样子
+```
+
+## 运行和部署
+
+```bash
+npm install
+npm run build      # 生成 public/
+npm test           # public/ 是否最新、契约、文案、报告和分享的单元测试
+npm run assets     # 预览图（需要系统字体；提交生成结果）
+npm run dev        # http://localhost:8797  （试试 /zh-cn/?mock=1）
+npx wrangler deploy
+```
+
+Cloudflare Worker 加静态资源：文件直接返回，不经过脚本（不计费）；`src/worker.js` 只处理 `/r/<摘要>` 和 404。在 1ms.dog 上，推送到 `main` 由 Workers Builds 部署（`npm ci && npm test`，然后 `npx wrangler deploy`）。`wrangler.toml` 不绑域名：1ms.dog 的公共 shell 把 `check.1ms.dog` 路由到它。自部署时在 Cloudflare 控制台把域名绑到 Worker，构建时设 `SITE_URL=https://your.domain FRAME_SRC="https://tools.example https://*.tools.example" npm run build`；被嵌入的工具要用 `<meta name="<id>">` 宣告自己并实现嵌入协议。
+
+## 许可
+
+MIT

@@ -25,13 +25,13 @@ export function encodeSummary(s) {
 export function decodeSummary(code) {
   if (typeof code !== "string" || code.length > 120) return null;
   const p = code.split("~");
-  if (p[0] !== String(FORMAT) || p.length !== 11 || !/^[0-9a-z]{1,8}$/.test(p[1])) return null;
+  if (p[0] !== String(FORMAT) || p.length !== 12 || !/^[0-9a-z]{1,8}$/.test(p[1])) return null;
   const grades = p.slice(2, 8);
   if (!grades.every(x => x === "" || GRADE.test(x))) return null;
   if (!/^(\d{1,3})?$/.test(p[8]) || !/^(\d{1,4}-\d{1,4})?$/.test(p[9]) || !/^(\d{1,6}(\.\d)?)?$/.test(p[10 - 1 + 1] || "") || !/^(\d{1,6}(\.\d)?)?$/.test(p[9 + 1] || "")) return null;
   const [works, all] = p[9] ? p[9].split("-").map(Number) : [null, null];
   const out = { v: FORMAT, ts: parseInt(p[1], 36) * 1000, total: grades[0] || null, sections: Object.fromEntries(SECS.map((k, i) => [k, grades[i + 1] || null])),
-    ipqsScore: p[8] ? +p[8] : null, works, all, down: p[10] ? +p[10] : null, up: null };
+    ipqsScore: p[8] ? +p[8] : null, works, all, down: p[10] ? +p[10] : null, up: p[11] ? +p[11] : null };
   return out;
 }
 
