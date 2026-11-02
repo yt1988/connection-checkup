@@ -12,6 +12,7 @@ export default {
   th_system: "Tema: sistema", th_light: "Tema: claro", th_dark: "Tema: oscuro",
   intro: "Una sola ejecución encadena ocho pruebas de 1ms.dog: quién cree la web que eres, calidad de la IP, salidas, IPv6, DNS, desbloqueo, latencia a servicios y velocidad. Cada herramienta mide y muestra su propio resultado; al final recibes una nota.",
   intro_time: "Unos 90 segundos. El test de velocidad del final consume algo de datos.",
+  auto_label: "Comprobar al abrir la página",
   start: "Empezar chequeo", stop: "Detener", again: "Repetir", running: "Chequeando",
   ph_1: "Identidad, IP, salidas, IPv6, DNS", ph_2: "Desbloqueo, latencia a servicios", ph_3: "Velocidad",
   prog: "Paso {n} / 3 · {text} · {s} s", prog_done: "Hecho en {s} s", prog_stopped: "Detenido",

@@ -12,6 +12,7 @@ export default {
   th_system: "主题：跟随系统", th_light: "主题：浅色", th_dark: "主题：深色",
   intro: "一次跑完 1ms.dog 的 8 项检测：网站眼中的你、IP 质量、出口、IPv6、DNS、解锁、服务延迟和网速。每个工具自己测、自己显示结果，最后合成一个总等级。",
   intro_time: "约 90 秒。最后的网速测试会用掉一些流量。",
+  auto_label: "打开页面时自动体检",
   start: "开始体检", stop: "停止", again: "再测一次", running: "体检中",
   ph_1: "身份、IP、出口、IPv6、DNS", ph_2: "解锁、服务延迟", ph_3: "网速",
   prog: "第 {n} 步 / 3 · {text} · {s} 秒", prog_done: "用时 {s} 秒", prog_stopped: "已停止",

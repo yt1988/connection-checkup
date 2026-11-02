@@ -12,6 +12,7 @@ export default {
   th_system: "Design: System", th_light: "Design: hell", th_dark: "Design: dunkel",
   intro: "Ein Durchlauf verkettet acht 1ms.dog-Tests: wer du für Websites bist, IP-Qualität, Ausgänge, IPv6, DNS, Unlock, Latenz zu Diensten und Speed. Jedes Tool misst und zeigt sein eigenes Ergebnis; am Ende gibt es eine Note.",
   intro_time: "Etwa 90 Sekunden. Der Speedtest am Ende verbraucht etwas Datenvolumen.",
+  auto_label: "Beim Öffnen der Seite starten",
   start: "Check starten", stop: "Abbrechen", again: "Noch einmal", running: "Check läuft",
   ph_1: "Identität, IP, Ausgänge, IPv6, DNS", ph_2: "Unlock, Latenz zu Diensten", ph_3: "Speed",
   prog: "Schritt {n} / 3 · {text} · {s} s", prog_done: "Fertig in {s} s", prog_stopped: "Abgebrochen",

@@ -14,7 +14,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
   const t = (k, v) => { let s = L[k] ?? k; if (v) for (const x in v) s = s.split("{" + x + "}").join(v[x]); return s; };
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
-  const K = { theme: "checkup:theme", lang: "checkup:lang" };
+  const K = { theme: "checkup:theme", lang: "checkup:lang", auto: "checkup:auto" };
   const Q = new URLSearchParams(location.search);
   const MOCK = Q.get("mock") === "1";
   const DEV = /^(localhost|127\.|\[)/.test(location.hostname);
@@ -345,10 +345,16 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     setGo("idle");
   }
 
+  // a checkup moves data (the speed test) and takes 90 seconds, so the page waits for Start unless the visitor turned
+  // auto-run on (remembered in this browser) or came by a link that asks for it
+  const autoBox = $("#auto");
+  autoBox.checked = store.get(K.auto) === "1";
+  autoBox.onchange = () => store.set(K.auto, autoBox.checked ? "1" : "0");
+
   setGo("idle");
   const SP = sharePath(location.pathname), SUM = SP && decodeSummary(SP.code);
   if (SUM) {
     const full = location.hash.length > 1 ? decodeFull(location.hash.slice(1)) : null;
     showShared(SUM, full && full.tools ? full : null);
-  } else if (Q.get("start") === "1" || MOCK) start();
+  } else if (Q.get("start") === "1" || MOCK || autoBox.checked) start();
 })();

@@ -12,6 +12,7 @@ export default {
   th_system: "Thème : système", th_light: "Thème : clair", th_dark: "Thème : sombre",
   intro: "Une seule exécution enchaîne huit tests 1ms.dog : qui les sites croient que vous êtes, qualité de l’IP, sorties, IPv6, DNS, déblocage, latence vers les services et débit. Chaque outil mesure et affiche son propre résultat ; à la fin, une note.",
   intro_time: "Environ 90 secondes. Le test de débit à la fin consomme un peu de données.",
+  auto_label: "Lancer à l’ouverture de la page",
   start: "Lancer le bilan", stop: "Arrêter", again: "Refaire", running: "Bilan en cours",
   ph_1: "Identité, IP, sorties, IPv6, DNS", ph_2: "Déblocage, latence vers les services", ph_3: "Débit",
   prog: "Étape {n} / 3 · {text} · {s} s", prog_done: "Terminé en {s} s", prog_stopped: "Arrêté",

@@ -12,6 +12,7 @@ export default {
   th_system: "テーマ：システム", th_light: "テーマ：ライト", th_dark: "テーマ：ダーク",
   intro: "1ms.dog の 8 つのテストを一度に実行します：サイトから見たあなた、IP 品質、出口、IPv6、DNS、解除、サービス遅延、速度。各ツールが自分で測って結果を表示し、最後に総合評価にまとめます。",
   intro_time: "約 90 秒。最後のスピードテストは通信量を使います。",
+  auto_label: "ページを開いたら自動で開始",
   start: "チェック開始", stop: "停止", again: "もう一度", running: "チェック中",
   ph_1: "身元、IP、出口、IPv6、DNS", ph_2: "解除、サービス遅延", ph_3: "速度",
   prog: "ステップ {n} / 3 · {text} · {s} 秒", prog_done: "所要 {s} 秒", prog_stopped: "停止しました",

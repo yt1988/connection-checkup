@@ -12,6 +12,7 @@ export default {
   th_system: "테마: 시스템", th_light: "테마: 밝게", th_dark: "테마: 어둡게",
   intro: "1ms.dog의 테스트 8가지를 한 번에 실행합니다: 웹사이트가 보는 나, IP 품질, 출구, IPv6, DNS, 언락, 서비스 지연, 속도. 각 도구가 직접 측정하고 결과를 보여 주며, 마지막에 종합 등급 하나로 정리합니다.",
   intro_time: "약 90초. 마지막 속도 측정은 데이터를 조금 사용합니다.",
+  auto_label: "페이지를 열면 자동으로 시작",
   start: "점검 시작", stop: "중지", again: "다시 점검", running: "점검 중",
   ph_1: "신원, IP, 출구, IPv6, DNS", ph_2: "언락, 서비스 지연", ph_3: "속도",
   prog: "{n}단계 / 3 · {text} · {s}초", prog_done: "{s}초 소요", prog_stopped: "중지됨",

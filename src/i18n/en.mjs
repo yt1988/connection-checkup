@@ -12,6 +12,7 @@ export default {
   th_system: "Theme: system", th_light: "Theme: light", th_dark: "Theme: dark",
   intro: "One run chains eight 1ms.dog tests: who websites think you are, IP quality, exits, IPv6, DNS, unlock, service latency and speed. Each tool measures and shows its own result below; at the end you get one grade.",
   intro_time: "About 90 seconds. The speed test at the end uses some data.",
+  auto_label: "Check when the page opens",
   start: "Start checkup", stop: "Stop", again: "Check again", running: "Checking",
   ph_1: "Identity, IP, exits, IPv6, DNS", ph_2: "Unlock, service latency", ph_3: "Speed",
   prog: "Step {n} / 3 · {text} · {s} s", prog_done: "Done in {s} s", prog_stopped: "Stopped",
