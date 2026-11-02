@@ -37,10 +37,11 @@
     <section class="hero card" id="hero" data-st="idle">
       <h1>{{h1}}</h1>
       <p class="intro"><span data-i="intro"></span><b data-i="intro_time"></b></p>
-      <ul class="chips" aria-hidden="true">{{chips}}</ul>
+      <!-- the eight tools and, while the run goes, each one's state -->
+      <ul class="chips" id="chips">{{chips}}</ul>
       <!-- the verdict: the overall grade, one sentence, the numbers behind it -->
       <div class="verdict">
-        <div class="g-big" id="vGrade">–</div>
+        <div class="g-big" id="vGrade"><svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-bg" cx="50" cy="50" r="46"/><circle class="ring-fg" id="vRing" cx="50" cy="50" r="46" pathLength="100"/></svg><span id="vGradeT">–</span></div>
         <div class="v-text"><p class="v-head" id="vHead">&nbsp;</p><p class="v-sub" id="vSub">&nbsp;</p><p class="v-miss" id="vMiss"></p></div>
       </div>
       <ul class="keys" id="keys">
@@ -60,7 +61,11 @@
     </section>
 
     <section class="secs" id="secs" hidden>{{secs}}</section>
-    <section class="tools" id="tools" hidden>{{tools}}</section>
+    <!-- the test log: the eight tools' frames, collapsed to a sliver unless the visitor opens them -->
+    <section class="tools card" id="tools" data-open="0" hidden>
+      <div class="tools-h"><button class="tools-tog" type="button" data-tools-tog aria-expanded="false" aria-controls="toolsBody"><span data-i="tools_h"></span><span class="m" id="toolsSum"></span><span class="tt" data-tools-txt></span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button></div>
+      <div class="tools-b" id="toolsBody">{{tools}}</div>
+    </section>
     <p class="mock-note" id="mockNote" hidden data-i="mock_note"></p>
 
     <div data-ms-more></div>

@@ -106,12 +106,12 @@ export async function build({ check = false } = {}) {
     const langOpts = langs.map(([l]) => `<option value="${l}"${l === lang ? " selected" : ""}>${esc(I[l].name)}</option>`).join("");
     const paths = Object.fromEntries(langs.map(([l, sl]) => [l, path(sl)]));
     const names = Object.fromEntries(TOOLS.map(id => [id, nameOf(id, lang)]));
-    const chips = TOOLS.map(id => `<li><i></i>${esc(names[id])}</li>`).join("");
+    const chips = TOOLS.map(id => `<li data-tool="${id}" data-st="wait"><i></i>${esc(names[id])}<em></em></li>`).join("");
     // the five sections and the eight tools, every slot in place before anything runs
     const secs = SECTIONS.map(s => `<article class="sec card" data-sec="${s.id}"><div class="sec-h"><span class="sec-g" id="sg-${s.id}">–</span><h2>${esc(T("sec_" + s.id))}</h2><span class="w">${esc(T("weight", { w: s.weight }))}</span></div>` +
       `<p class="sec-head m" id="sh-${s.id}">&nbsp;</p><ul class="stats" id="ss-${s.id}"></ul><ul class="finds" id="sf-${s.id}"></ul><p class="sec-links" id="sl-${s.id}"></p></article>`).join("");
-    const tools = TOOLS.map(id => `<article class="tool card" data-tool="${id}" data-st="wait" data-open="1"><div class="t-h"><span class="t-name">${esc(names[id])}</span><span class="t-st" data-st-txt>${esc(T("st_wait"))}</span><span class="t-head" data-head></span>` +
-      `<button class="btn t-tog" type="button" data-tog aria-expanded="true"><span data-tog-txt>${esc(T("collapse"))}</span>${CHEV}</button></div><div class="t-body"><div data-frame></div><div class="t-res" data-res></div><p class="t-err" data-err></p></div></article>`).join("");
+    const tools = TOOLS.map(id => `<article class="tool card" data-tool="${id}" data-st="wait" data-open="0"><div class="t-h"><span class="t-name">${esc(names[id])}</span><span class="t-st" data-st-txt>${esc(T("st_wait"))}</span><span class="t-head" data-head></span>` +
+      `<button class="btn t-tog" type="button" data-tog aria-expanded="false"><span data-tog-txt>${esc(T("expand"))}</span>${CHEV}</button></div><div class="t-body"><div data-frame></div><div class="t-res" data-res></div><p class="t-err" data-err></p></div></article>`).join("");
 
     const html = tpl
       .replace(/(<(\w+)\b[^>]*\sdata-i="(\w+)"[^>]*>)([^<]*)(<\/\2>)/g, (m, open, tag, k, inner, close) => open + esc(T(k)) + close)

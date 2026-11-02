@@ -1,9 +1,12 @@
-// Network X-Ray (Connection Checkup) page. Press Start: the eight 1ms.dog tools run in frames, in three phases (src/tools.mjs), each
-// showing its own progress and result and posting it back (1ms-shell docs/checkup.md). At the end: the overall
-// grade, the five sections, the cross-tool findings (src/report.mjs), and a link and card to share (src/share.mjs).
-// Strings: window.L1MS. ?mock=1 feeds the page the sample results in test/fixtures instead of framing the tools.
+// Network X-Ray (Connection Checkup) page. Press Start: the eight 1ms.dog tools run in frames, in three phases
+// (src/tools.mjs), each posting its progress and result back (1ms-shell docs/checkup.md). The first screen shows the
+// run as it goes: a progress ring, the phase, each tool's state, the key numbers and findings as the tools report.
+// At the end: the overall grade, the five sections, the cross-tool findings (src/report.mjs), and a link and card to
+// share (src/share.mjs). The frames sit in a collapsed "test log" that the visitor may open; collapsed frames keep a
+// visible sliver so the browser keeps rendering them (a hidden cross-origin frame gets its timers throttled, which
+// would skew the measurements). Strings: window.L1MS. ?mock=1 feeds the page the sample results in test/fixtures.
 import { TOOLS, PHASES, SECTIONS, PHASE_TIMEOUT, DEFAULT_ORIGINS } from "./tools.mjs";
-import { overall, crossFindings, keyStats, sectionFindings, sectionStats, topFindings, gradeTier, gradeLevel, gradeKey, sectionOf } from "./report.mjs";
+import { overall, crossFindings, keyStats, sectionFindings, sectionStats, topFindings, gradeTier, gradeLevel, gradeKey } from "./report.mjs";
 import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summaryOf } from "./share.mjs";
 
 (function () {
@@ -65,14 +68,17 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
   const country = cc => { if (!cc) return ""; try { return new Intl.DisplayNames([D.lang], { type: "region" }).of(cc); } catch (e) { return cc; } };
 
   /* ---------- state ---------- */
-  const card = id => $(`.tool[data-tool="${id}"]`);
-  const S = { status: {}, results: {}, errors: {}, frames: {} };   // status: wait | run | done | timeout | error | na | stopped
-  let RUN = null, LAST = null, OV = null, TIMER = null, SHARED = false;
+  const card = id => $(`.tool[data-tool="${id}"]`), chip = id => $(`#chips li[data-tool="${id}"]`);
+  const S = { status: {}, results: {}, errors: {}, frames: {}, heights: {}, pct: {} };   // status: wait | run | done | timeout | error | na | stopped
+  let RUN = null, LAST = null, OV = null, TIMER = null, SHARED = false, PHASE = 0;
   const TITLE = document.title;
+  const mbps = v => v >= 10 ? String(Math.round(v)) : v.toFixed(1);
 
   function setStatus(id, st) {
     S.status[id] = st;
     const c = card(id); c.dataset.st = st; c.querySelector("[data-st-txt]").textContent = t("st_" + st);
+    const ch = chip(id); ch.dataset.st = st; ch.querySelector("em").textContent = st === "run" ? (S.pct[id] != null ? S.pct[id] + "%" : "…") : st === "done" ? "✓" : st === "wait" ? "" : t("st_" + st);
+    $("#toolsSum").textContent = t("tools_sum", { done: TOOLS.filter(x => S.results[x]).length, all: TOOLS.length });
   }
   const prog = n => { $("#progBar").style.transform = `scaleX(${Math.min(1, Math.max(0, n)).toFixed(3)})`; };
   const settle = { pending: new Set(), resolve: null };
@@ -93,22 +99,26 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     if (!RUN || S.status[id] !== "run") return;
     const c = card(id);
     if (d.type === "progress") {
-      const total = typeof d.total === "number" && d.total > 0 ? d.total : 100, pct = typeof d.done === "number" ? Math.max(0, Math.min(1, d.done / total)) : null;
-      c.querySelector("[data-st-txt]").textContent = t("st_run") + (pct != null ? ` · ${Math.round(pct * 100)}%` : "");
+      const total = typeof d.total === "number" && d.total > 0 ? d.total : 100;
+      if (typeof d.done === "number") { S.pct[id] = Math.round(100 * Math.max(0, Math.min(1, d.done / total))); chip(id).querySelector("em").textContent = S.pct[id] + "%"; }
+      c.querySelector("[data-st-txt]").textContent = t("st_run") + (S.pct[id] != null ? ` · ${S.pct[id]}%` : "");
       if (typeof d.text === "string") c.querySelector("[data-head]").textContent = d.text.slice(0, 160);
+      liveLine();
     } else if (d.type === "size") {
-      const f = S.frames[id];
-      if (f && typeof d.height === "number" && d.height > 0) f.style.height = Math.min(6000, Math.max(120, Math.ceil(d.height))) + "px";
+      // remembered, applied when the card is open (a collapsed frame keeps a sliver's height)
+      if (typeof d.height === "number" && d.height > 0) { S.heights[id] = Math.min(6000, Math.max(120, Math.ceil(d.height))); sizeFrame(id); }
     } else if (d.type === "result") {
       S.results[id] = sanitize(d);
       setStatus(id, "done");
       c.querySelector("[data-head]").textContent = S.results[id].headline;
       if (MOCK) { c.querySelector("[data-frame]").replaceChildren(); c.querySelector("[data-res]").innerHTML = resHTML(S.results[id]); }
+      renderLive();
       done(id);
     } else if (d.type === "error") {
       S.errors[id] = str(d.text, 300);
       setStatus(id, "error");
       c.querySelector("[data-err]").textContent = S.errors[id];
+      liveLine();
       done(id);
     }
   }
@@ -120,6 +130,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     if (!f || e.source !== f.contentWindow || e.origin !== tool(d.tool)) return;
     handle(d.tool, d);
   });
+  const sizeFrame = id => { const f = S.frames[id]; if (f && card(id).dataset.open === "1") f.style.height = (S.heights[id] || 220) + "px"; };
 
   function launch(id) {
     const c = card(id), slot = c.querySelector("[data-frame]");
@@ -153,18 +164,55 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
   });
 
   function reset() {
-    for (const id of TOOLS) { S.status[id] = "wait"; delete S.results[id]; delete S.errors[id]; delete S.frames[id]; const c = card(id); c.dataset.st = "wait"; c.dataset.open = "1";
+    for (const id of TOOLS) { S.status[id] = "wait"; delete S.results[id]; delete S.errors[id]; delete S.frames[id]; delete S.heights[id]; delete S.pct[id]; const c = card(id); c.dataset.st = "wait";
       c.querySelector("[data-st-txt]").textContent = t("st_wait"); c.querySelector("[data-head]").textContent = ""; c.querySelector("[data-frame]").replaceChildren(); c.querySelector("[data-res]").replaceChildren(); c.querySelector("[data-err]").textContent = "";
-      c.querySelector("[data-tog-txt]").textContent = t("collapse"); c.querySelector("[data-tog]").setAttribute("aria-expanded", "true"); }
+      toggleTool(id, false); const ch = chip(id); ch.dataset.st = "wait"; ch.querySelector("em").textContent = ""; }
+    toggleTools(false);
     LAST = null; OV = null; $("#shareBtn").disabled = true; prog(0); document.title = TITLE;
-    $("#vGrade").textContent = "–"; $("#vGrade").className = "g-big"; delete $("#vGrade").dataset.g;
+    $("#vGradeT").textContent = "–"; $("#vGrade").className = "g-big"; delete $("#vGrade").dataset.g; ring(0);
     $("#vHead").className = "v-head"; $("#vHead").innerHTML = "&nbsp;"; $("#vSub").innerHTML = "&nbsp;"; $("#vMiss").textContent = "";
     for (const k of ["Ipqs", "Unlock", "Down"]) { $("#k" + k).textContent = "–"; $("#k" + k + "S").textContent = ""; }
-    $("#finds").replaceChildren(); $("#crossH").hidden = true;
+    $("#finds").replaceChildren();
     for (const s of SECTIONS) { const g = $("#sg-" + s.id); g.textContent = "–"; g.className = "sec-g"; delete g.dataset.g; $("#sh-" + s.id).className = "sec-head m"; $("#sh-" + s.id).innerHTML = "&nbsp;";
       $("#ss-" + s.id).replaceChildren(); $("#sf-" + s.id).replaceChildren(); $("#sl-" + s.id).replaceChildren(); }
+    $("#toolsSum").textContent = "";
   }
   function setGo(st) { $("#go").dataset.st = st; $("#goT").textContent = t({ idle: "start", run: "stop", done: "again" }[st]); }
+  const ring = f => { $("#vRing").style.strokeDasharray = `${(Math.min(1, Math.max(0, f)) * 100).toFixed(1)} 100`; };
+
+  /* ---------- the first screen while the run goes ---------- */
+  // the ring: finished tools over all; the sentence: the phase; under it: the tools running now with their progress
+  function liveLine() {
+    if (!RUN) return;
+    const doneN = TOOLS.filter(id => S.results[id]).length;
+    $("#vGradeT").textContent = `${doneN}/${TOOLS.length}`;
+    ring(doneN / TOOLS.length + (TOOLS.filter(id => S.status[id] === "run").reduce((a, id) => a + (S.pct[id] || 0), 0) / 100) / TOOLS.length);
+    $("#vHead").textContent = t("ph_run", { n: PHASE + 1, text: t("ph_" + (PHASE + 1)) });
+    const running = TOOLS.filter(id => S.status[id] === "run").map(id => D.names[id] + (S.pct[id] != null ? ` ${S.pct[id]}%` : " …"));
+    $("#vSub").textContent = running.length ? running.join(" · ") : t("waiting");
+  }
+  // the key numbers and findings from the results so far: filled in as each tool reports
+  function renderLive() {
+    liveLine();
+    renderKeys(S.results, S.status.speed === "run" ? t("k_running") + (S.pct.speed != null ? ` ${S.pct.speed}%` : "") : "");
+    renderFinds(S.results);
+  }
+  function renderKeys(R, downNote) {
+    const keys = keyStats(R);
+    $("#kIpqs").innerHTML = keys.ipqs && (keys.ipqs.grade || keys.ipqs.score != null) ? `<span class="${gradeTier(keys.ipqs.grade)}">${esc(keys.ipqs.grade || "")}</span>${keys.ipqs.score != null ? `<small>${keys.ipqs.score} / 100</small>` : ""}` : "–";
+    $("#kIpqsS").textContent = R.ipqs ? R.ipqs.headline : "";
+    $("#kUnlock").innerHTML = keys.unlock ? `${keys.unlock.works}<small>/ ${keys.unlock.total}</small>` : "–";
+    $("#kUnlockS").textContent = R.unlock && R.unlock.stats[1] ? `${R.unlock.stats[1].label} ${R.unlock.stats[1].value}` : "";
+    $("#kDown").innerHTML = keys.down != null ? `${mbps(keys.down)}<small>Mbps</small>` : downNote ? `<small>${esc(downNote)}</small>` : "–";
+    $("#kDownS").textContent = keys.up != null ? `${t("k_up")} ${mbps(keys.up)} Mbps` : "";
+  }
+  // findings: across the tools first, then the worst of the tools', four in all; the leak rule stands in for the
+  // tools' own WebRTC lines
+  function renderFinds(R) {
+    const cross = crossFindings(R);
+    const own = topFindings(R, 4).filter(f => !cross.some(x => x.key === "x_leak" && /webrtc/i.test(f.text)));
+    $("#finds").innerHTML = cross.map(x => findLi({ level: x.level, text: crossText(x) }, t("cross_h"))).concat(own.map(f => findLi(f, D.names[f.tool]))).slice(0, 4).join("");
+  }
 
   async function start() {
     if (RUN) { RUN.abort = true; return; }
@@ -172,16 +220,18 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     reset();
     const me = RUN = { abort: false, t0: performance.now() };
     $("#hero").dataset.st = "run"; $("#secs").hidden = true; $("#tools").hidden = false; $("#mockNote").hidden = !MOCK;
-    $("#vGrade").className = "g-big wait"; $("#vGrade").textContent = "…"; $("#vHead").textContent = t("v_running");
+    $("#vGrade").className = "g-big wait";
     setGo("run");
     for (const id of TOOLS) if (!tool(id)) setStatus(id, "na");
     const tick = (n, label) => { const s = Math.round((performance.now() - me.t0) / 1000); $("#progTxt").textContent = t("prog", { n, text: label, s }); document.title = `${t("running")} ${n}/3 · ${TITLE}`; };
     for (let i = 0; i < PHASES.length && !me.abort; i++) {
+      PHASE = i;
       const ids = PHASES[i].filter(id => S.status[id] === "wait");
       const label = t("ph_" + (i + 1));
       tick(i + 1, label); clearInterval(TIMER); TIMER = setInterval(() => tick(i + 1, label), 1000);
       prog(i / PHASES.length + .02);
       for (const id of ids) launch(id);
+      liveLine();
       const t0 = performance.now();
       await Promise.race([wait(ids, PHASE_TIMEOUT), new Promise(r => { const iv = setInterval(() => { if (me.abort) { clearInterval(iv); r(); } }, 200); })]);
       for (const id of ids) if (S.status[id] === "run") setStatus(id, me.abort ? "stopped" : "timeout");
@@ -194,46 +244,35 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     const s = Math.round((performance.now() - me.t0) / 1000);
     $("#progTxt").textContent = me.abort ? t("prog_stopped") : t("prog_done", { s });
     prog(1);
-    finish(me.abort);
+    finish();
   }
-  function finish(stopped) {
+  function finish() {
     const missing = {};
     for (const id of TOOLS) if (!S.results[id]) missing[id] = S.status[id];
     LAST = { v: 1, ts: Date.now(), lang: D.lang, tools: { ...S.results }, missing };
     render(LAST, false);
-    for (const id of TOOLS) toggleTool(id, false);   // the frames fold into result cards
     setGo("done");
     document.title = `${t("app_name")} ${OV.grade || "–"} · ${TITLE}`;
   }
 
   /* ---------- the report ---------- */
-  const gradeEl = (el, g) => { el.textContent = g || "–"; el.className = el.className.replace(/\bt\d\b/g, "").trim() + (g ? " " + gradeTier(g) : ""); if (g) el.dataset.g = g; else delete el.dataset.g; };
+  const gradeEl = (el, g, txt = el) => { txt.textContent = g || "–"; el.className = el.className.replace(/\bt\d\b/g, "").trim() + (g ? " " + gradeTier(g) : ""); if (g) el.dataset.g = g; else delete el.dataset.g; };
   const findLi = (f, src) => `<li data-lv="${esc(f.level)}"><span>${esc(f.text)}</span>${src ? `<span class="src">${esc(src)}</span>` : ""}</li>`;
-  const mbps = v => v >= 10 ? String(Math.round(v)) : v.toFixed(1);
   const crossText = x => t(x.key, Object.fromEntries(Object.entries(x.params || {}).map(([k, v]) => [k, country(v)])));
+  const resHTML = r => `<p class="sec-head ${gradeLevel(r.grade)}">${esc(r.headline)}</p><ul class="stats">${r.stats.map(s => `<li><span>${esc(s.label)}</span><b>${esc(s.value)}</b></li>`).join("")}</ul><ul class="finds">${r.findings.map(f => findLi(f)).join("")}</ul>`;
 
   // the whole report from the tools' results: `shared` is someone else's (no frames to show)
   function render(rep, shared) {
     const R = rep.tools;
     OV = overall(R);
-    const keys = keyStats(R), cross = crossFindings(R);
     $("#hero").dataset.st = "done"; $("#secs").hidden = false; $("#tools").hidden = false;
     // the verdict
-    const vg = $("#vGrade"); vg.className = "g-big"; gradeEl(vg, OV.grade);
+    const vg = $("#vGrade"); vg.className = "g-big"; gradeEl(vg, OV.grade, $("#vGradeT")); ring(1);
     const vh = $("#vHead"); vh.textContent = OV.grade ? t("v_" + gradeKey(OV.grade)) : t("v_none"); vh.className = "v-head " + gradeLevel(OV.grade);
     $("#vSub").innerHTML = esc(t("sub", { done: OV.done.length, all: TOOLS.length, w: Math.round(100 * OV.used / OV.total) }));
     $("#vMiss").textContent = OV.missing.length ? t("missing", { list: OV.missing.map(id => D.names[id]).join(", ") }) : "";
-    // three key numbers
-    $("#kIpqs").innerHTML = keys.ipqs && (keys.ipqs.grade || keys.ipqs.score != null) ? `<span class="${gradeTier(keys.ipqs.grade)}">${esc(keys.ipqs.grade || "")}</span>${keys.ipqs.score != null ? `<small>${keys.ipqs.score} / 100</small>` : ""}` : "–";
-    $("#kIpqsS").textContent = R.ipqs ? R.ipqs.headline : "";
-    $("#kUnlock").innerHTML = keys.unlock ? `${keys.unlock.works}<small>/ ${keys.unlock.total}</small>` : "–";
-    $("#kUnlockS").textContent = R.unlock && R.unlock.stats[1] ? `${R.unlock.stats[1].label} ${R.unlock.stats[1].value}` : "";
-    $("#kDown").innerHTML = keys.down != null ? `${mbps(keys.down)}<small>Mbps</small>` : "–";
-    $("#kDownS").textContent = keys.up != null ? `${t("k_up")} ${mbps(keys.up)} Mbps` : "";
-    // findings: across the tools first, then the worst of the tools', four in all
-    const own = topFindings(R, 4).filter(f => !cross.some(x => x.key === "x_leak" && /webrtc/i.test(f.text)));
-    $("#finds").innerHTML = cross.map(x => findLi({ level: x.level, text: crossText(x) }, t("cross_h"))).concat(own.map(f => findLi(f, D.names[f.tool]))).slice(0, 4).join("");
-    $("#crossH").hidden = true;
+    renderKeys(R, "");
+    renderFinds(R);
     // the sections
     for (const sec of SECTIONS) {
       const sr = OV.sections[sec.id];
@@ -247,25 +286,34 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
       $("#sl-" + sec.id).innerHTML = sr.done.map(id => { const o = tool(id); if (!o) return ""; const href = R[id].path ? o + R[id].path : toolHome(id); return xlink(href, esc(sec.tools.length > 1 ? `${t("full")} · ${D.names[id]}` : t("full"))); }).join("");
     }
     // the tool cards: a shared report has no frames, so each shows its result in full
-    for (const id of TOOLS) {
+    if (shared) for (const id of TOOLS) {
       const c = card(id), r = R[id];
-      if (shared) {
-        setStatus(id, r ? "done" : (rep.missing && rep.missing[id]) || "stopped");
-        c.querySelector("[data-head]").textContent = r ? r.headline : "";
-        c.querySelector("[data-res]").innerHTML = r ? resHTML(r) : "";
-        toggleTool(id, false);
-      }
+      setStatus(id, r ? "done" : (rep.missing && rep.missing[id]) || "stopped");
+      c.querySelector("[data-head]").textContent = r ? r.headline : "";
+      c.querySelector("[data-res]").innerHTML = r ? resHTML(r) : "";
     }
+    $("#toolsSum").textContent = t("tools_sum", { done: OV.done.length, all: TOOLS.length });
     $("#shareBtn").disabled = false;
   }
-  const resHTML = r => `<p class="sec-head ${gradeLevel(r.grade)}">${esc(r.headline)}</p><ul class="stats">${r.stats.map(s => `<li><span>${esc(s.label)}</span><b>${esc(s.value)}</b></li>`).join("")}</ul><ul class="finds">${r.findings.map(f => findLi(f)).join("")}</ul>`;
+  // the test log and its cards open only when the visitor asks; a collapsed frame keeps a sliver visible
   function toggleTool(id, open) {
     const c = card(id);
     c.dataset.open = open ? "1" : "0";
     c.querySelector("[data-tog]").setAttribute("aria-expanded", String(open));
     c.querySelector("[data-tog-txt]").textContent = t(open ? "collapse" : "expand");
+    sizeFrame(id);
   }
-  $("#tools").addEventListener("click", e => { const b = e.target.closest("[data-tog]"); if (!b) return; const c = b.closest(".tool"); toggleTool(c.dataset.tool, c.dataset.open !== "1"); });
+  function toggleTools(open) {
+    $("#tools").dataset.open = open ? "1" : "0";
+    $("[data-tools-tog]").setAttribute("aria-expanded", String(open));
+    $("[data-tools-txt]").textContent = t(open ? "tools_hide" : "tools_show");
+  }
+  $("#tools").addEventListener("click", e => {
+    const tb = e.target.closest("[data-tools-tog]");
+    if (tb) return toggleTools($("#tools").dataset.open !== "1");
+    const b = e.target.closest("[data-tog]"); if (!b) return;
+    const c = b.closest(".tool"); toggleTool(c.dataset.tool, c.dataset.open !== "1");
+  });
   $("#go").onclick = start;
   $("#testMine").onclick = () => { if (!RUN) start(); };
 
@@ -329,7 +377,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
       // only the summary: the grades and the key numbers, nothing else
       $("#hero").dataset.st = "done"; $("#secs").hidden = false;
       OV = { grade: sum.total, sections: Object.fromEntries(SECTIONS.map(s => [s.id, { grade: sum.sections[s.id] }])) };
-      gradeEl($("#vGrade"), sum.total);
+      gradeEl($("#vGrade"), sum.total, $("#vGradeT")); ring(1);
       const vh = $("#vHead"); vh.textContent = sum.total ? t("v_" + gradeKey(sum.total)) : t("v_none"); vh.className = "v-head " + gradeLevel(sum.total);
       $("#vSub").innerHTML = "&nbsp;";
       $("#kIpqs").innerHTML = sum.sections.ipqs ? `<span class="${gradeTier(sum.sections.ipqs)}">${esc(sum.sections.ipqs)}</span>${sum.ipqsScore != null ? `<small>${sum.ipqsScore} / 100</small>` : ""}` : "–";
@@ -352,6 +400,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
   autoBox.onchange = () => store.set(K.auto, autoBox.checked ? "1" : "0");
 
   setGo("idle");
+  toggleTools(false);
   const SP = sharePath(location.pathname), SUM = SP && decodeSummary(SP.code);
   if (SUM) {
     const full = location.hash.length > 1 ? decodeFull(location.hash.slice(1)) : null;

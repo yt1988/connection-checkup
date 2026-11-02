@@ -22,10 +22,22 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 /* the eight tools as chips, before a run */
 .chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .chips li { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border-radius: 14px; background: var(--soft); font-size: 12.5px; color: var(--muted); }
-.chips li i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); opacity: .6; }
+.chips li i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+.chips li em { font-style: normal; font-family: var(--f-num); font-variant-numeric: tabular-nums; color: var(--fg); }
+.chips li em:empty { display: none; }
+.chips li[data-st="run"] { background: var(--ink-soft); color: var(--fg); } .chips li[data-st="run"] i { background: var(--ink); animation: blink 1s infinite; }
+.chips li[data-st="done"] { color: var(--fg); } .chips li[data-st="done"] i { background: var(--t1); } .chips li[data-st="done"] em { color: var(--t1); }
+.chips li[data-st="timeout"] i, .chips li[data-st="error"] i { background: var(--t5); } .chips li[data-st="timeout"] em, .chips li[data-st="error"] em { color: var(--t5); }
+.chips li[data-st="na"] i, .chips li[data-st="stopped"] i { background: var(--muted); }
 /* the verdict: a big grade beside the sentence and the line of numbers */
 .verdict { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 18px; align-items: center; }
-.g-big { height: 112px; border-radius: 22px; display: grid; place-items: center; font: 800 56px/1 var(--f-ui); letter-spacing: -.03em; background: var(--soft); color: var(--muted); }
+.g-big { position: relative; height: 112px; border-radius: 22px; display: grid; place-items: center; font: 800 56px/1 var(--f-ui); letter-spacing: -.03em; background: var(--soft); color: var(--muted); }
+/* while the run goes: a ring (finished tools over eight) around the count */
+.g-big .ring { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); transform: rotate(-90deg); display: none; pointer-events: none; }
+.g-big .ring circle { fill: none; stroke-width: 6; }
+.g-big .ring-bg { stroke: var(--line); } .g-big .ring-fg { stroke: var(--ink); stroke-dasharray: 0 100; stroke-linecap: round; transition: stroke-dasharray .4s linear; }
+.hero[data-st="run"] .g-big { background: transparent; color: var(--fg); font-size: 26px; letter-spacing: 0; font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.hero[data-st="run"] .g-big .ring { display: block; }
 .g-big[data-g] { background: color-mix(in srgb, currentColor 12%, transparent); }
 .g-big.wait { animation: blink 1.4s ease-in-out infinite; }
 @keyframes blink { 50% { opacity: .45; } }
@@ -70,7 +82,8 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 .prog { position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--ink-soft); overflow: hidden; border-radius: 0 0 var(--r) var(--r); }
 .prog i { display: block; height: 100%; width: 100%; background: var(--ink); transform: scaleX(0); transform-origin: left; transition: transform .4s linear; }
 .hero[data-st="idle"] .prog, .hero[data-st="idle"] .verdict, .hero[data-st="idle"] .keys, .hero[data-st="idle"] #finds, .hero[data-st="idle"] #crossH, .hero[data-st="idle"] #vMiss { display: none; }
-.hero:not([data-st="idle"]) .intro, .hero:not([data-st="idle"]) .chips { display: none; }
+.hero:not([data-st="idle"]) .intro, .hero[data-st="done"] .chips { display: none; }
+.hero[data-st="run"] .chips { justify-content: flex-start; }
 /* a shared report: a banner above the hero, with the way back to one's own checkup */
 .shared { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 12px 10px 16px; border-radius: var(--r); background: var(--ink-soft); border: 1px solid color-mix(in srgb, var(--ink) 30%, transparent); font-size: 13.5px; }
 .shared .btn { height: 32px; font-size: 13px; }
@@ -98,9 +111,22 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 .sec-links { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; margin-top: auto; }
 .sec-links:empty { display: none; }
 
-/* the eight tools: a frame while running, a collapsed result after */
-.tools { display: flex; flex-direction: column; gap: 12px; }
+/* the test log: the eight tools' frames. Collapsed (the default; only the visitor opens it) every frame keeps a 2 px
+   sliver on screen, so the browser still renders it and runs its timers at full rate: a hidden cross-origin frame
+   (display: none, visibility: hidden, off screen) gets throttled, which would skew the measurements inside. */
+.tools { display: flex; flex-direction: column; }
 .tools[hidden] { display: none; }
+.tools-h { display: flex; }
+.tools-tog { flex: 1; display: flex; align-items: center; gap: 10px; padding: 11px 14px 11px 18px; border: 0; background: none; cursor: pointer; text-align: left; font-weight: 650; border-radius: var(--r); }
+.tools-tog .m { font-weight: 400; font-size: 12.5px; }
+.tools-tog .tt { margin-left: auto; font-weight: 400; font-size: 12.5px; color: var(--muted); }
+.tools-tog svg { width: 14px; height: 14px; color: var(--muted); transition: transform .2s; }
+.tools[data-open="1"] .tools-tog svg { transform: rotate(180deg); }
+.tools-b { display: flex; flex-direction: column; gap: 12px; padding: 12px 14px 14px; border-top: 1px solid var(--line); }
+.tools[data-open="0"] .tools-b { gap: 0; padding: 0 18px 4px; border-top: 0; }
+.tools[data-open="0"] .t-h, .tools[data-open="0"] .t-res, .tools[data-open="0"] .t-err, .tools[data-open="0"] .mock { display: none; }
+.tools[data-open="0"] .tool { border: 0; border-radius: 0; }
+.tools[data-open="0"] .t-body { border-top: 0; }
 .tool { min-width: 0; overflow: hidden; }
 .t-h { display: flex; align-items: center; gap: 10px; padding: 10px 14px 10px 16px; }
 .t-name { font-weight: 650; white-space: nowrap; }
@@ -115,8 +141,10 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 .t-tog svg { width: 13px; height: 13px; transition: transform .2s; }
 .tool[data-open="1"] .t-tog svg { transform: rotate(180deg); }
 .t-body { border-top: 1px solid var(--line); }
-.tool:not([data-open="1"]) .t-body { display: none; }
+.tool[data-open="0"] .t-body { border-top: 0; }
+.tool[data-open="0"] .t-res, .tool[data-open="0"] .t-err, .tool[data-open="0"] .mock { display: none; }
 .t-frame { display: block; width: 100%; border: 0; min-height: 220px; height: 220px; background: transparent; }
+.tool[data-open="0"] .t-frame { min-height: 0; height: 2px !important; opacity: .35; }
 .tool[data-st="wait"] .t-frame, .tool[data-st="na"] .t-frame { display: none; }
 .t-res { padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 10px; }
 .t-res:empty { display: none; }
