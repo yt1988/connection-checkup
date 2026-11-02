@@ -1,7 +1,7 @@
 export default {
   name: "Português",
-  app_name: "Check-up da conexão",
-  seo_title: "Check-up da conexão: qualidade do IP, desbloqueio, velocidade, privacidade e DNS em um relatório com nota · Check-up da conexão",
+  app_name: "Raio-X da rede",
+  seo_title: "Raio-X da rede: qualidade do IP, desbloqueio, velocidade, privacidade e DNS em um relatório com nota · Raio-X da rede",
   seo_desc: "Um check-up completo da sua conexão com um clique: qualidade e reputação do IP, desbloqueio de streaming e IA, velocidade de download e upload, vazamentos de WebRTC e DNS, IPv6 e latência até os serviços mais usados. Oito testes encadeados em cerca de 90 segundos, uma nota de A a F e um link para compartilhar. Sem instalar nada.",
   seo_kw: "check-up da conexão, teste de conexão de internet, check-up de IP, teste de qualidade de IP, verificar VPN, verificar proxy, teste de desbloqueio, saúde da rede, teste de velocidade, vazamento de DNS, teste IPv6",
   og_sub: "Oito testes de rede de uma vez, uma nota, um link",

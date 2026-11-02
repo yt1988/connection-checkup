@@ -1,4 +1,4 @@
-// Connection Checkup page. Press Start: the eight 1ms.dog tools run in frames, in three phases (src/tools.mjs), each
+// Network X-Ray (Connection Checkup) page. Press Start: the eight 1ms.dog tools run in frames, in three phases (src/tools.mjs), each
 // showing its own progress and result and posting it back (1ms-shell docs/checkup.md). At the end: the overall
 // grade, the five sections, the cross-tool findings (src/report.mjs), and a link and card to share (src/share.mjs).
 // Strings: window.L1MS. ?mock=1 feeds the page the sample results in test/fixtures instead of framing the tools.
@@ -103,6 +103,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
       S.results[id] = sanitize(d);
       setStatus(id, "done");
       c.querySelector("[data-head]").textContent = S.results[id].headline;
+      if (MOCK) { c.querySelector("[data-frame]").replaceChildren(); c.querySelector("[data-res]").innerHTML = resHTML(S.results[id]); }
       done(id);
     } else if (d.type === "error") {
       S.errors[id] = str(d.text, 300);
@@ -251,12 +252,13 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
       if (shared) {
         setStatus(id, r ? "done" : (rep.missing && rep.missing[id]) || "stopped");
         c.querySelector("[data-head]").textContent = r ? r.headline : "";
-        c.querySelector("[data-res]").innerHTML = r ? `<p class="sec-head ${gradeLevel(r.grade)}">${esc(r.headline)}</p><ul class="stats">${r.stats.map(s => `<li><span>${esc(s.label)}</span><b>${esc(s.value)}</b></li>`).join("")}</ul><ul class="finds">${r.findings.map(f => findLi(f)).join("")}</ul>` : "";
+        c.querySelector("[data-res]").innerHTML = r ? resHTML(r) : "";
         toggleTool(id, false);
       }
     }
     $("#shareBtn").disabled = false;
   }
+  const resHTML = r => `<p class="sec-head ${gradeLevel(r.grade)}">${esc(r.headline)}</p><ul class="stats">${r.stats.map(s => `<li><span>${esc(s.label)}</span><b>${esc(s.value)}</b></li>`).join("")}</ul><ul class="finds">${r.findings.map(f => findLi(f)).join("")}</ul>`;
   function toggleTool(id, open) {
     const c = card(id);
     c.dataset.open = open ? "1" : "0";

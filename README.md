@@ -1,8 +1,8 @@
-# Connection Checkup
+# Network X-Ray
 
 **English** · [简体中文](README.zh-CN.md)
 
-How healthy is your connection, all things considered? [Connection Checkup](https://check.1ms.dog) runs eight 1ms.dog network tools in one go, right in your browser, and turns their results into one graded report: who websites think you are, IP quality, which exit each site sees, IPv6, DNS, streaming and AI unlock, latency to common services, and speed. About 90 seconds, one A+ to F grade, one link and one card to share.
+How healthy is your connection, all things considered? [Network X-Ray](https://check.1ms.dog) runs eight 1ms.dog network tools in one go, right in your browser, and turns their results into one graded report: who websites think you are, IP quality, which exit each site sees, IPv6, DNS, streaming and AI unlock, latency to common services, and speed. About 90 seconds, one A+ to F grade, one link and one card to share.
 
 **Live:** https://check.1ms.dog
 
@@ -28,7 +28,7 @@ Seven cross-tool findings sit on top: an incomplete disguise (data-center IP wit
 
 ### Sharing
 
-The link is `/<lang>/r/<summary>#<full>` (`src/share.mjs`). The summary in the path, under 100 characters, carries the format version, the grades and the key numbers: the Worker reads it to give the link its preview title ("Connection Checkup B · IP quality A · Services available 24/33 · Download 313 Mbps"), description and a per-grade preview image. The full report after the `#` (every tool's result link, headline, numbers, findings and facts, as base64url JSON) never reaches the server; the page rebuilds the whole report from it. A link without it shows the summary and says the details weren't included. The share dialog is the shared 1ms.dog one (`public/assets/share/`, copied verbatim from 1ms-shell); the card shows the overall grade, the five sections and the top findings.
+The link is `/<lang>/r/<summary>#<full>` (`src/share.mjs`). The summary in the path, under 100 characters, carries the format version, the grades and the key numbers: the Worker reads it to give the link its preview title ("Network X-Ray B · IP quality A · Services available 24/33 · Download 313 Mbps"), description and a per-grade preview image. The full report after the `#` (every tool's result link, headline, numbers, findings and facts, as base64url JSON) never reaches the server; the page rebuilds the whole report from it. A link without it shows the summary and says the details weren't included. The share dialog is the shared 1ms.dog one (`public/assets/share/`, copied verbatim from 1ms-shell); the card shows the overall grade, the five sections and the top findings.
 
 ### Where the tools live
 

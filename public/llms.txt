@@ -1,4 +1,4 @@
-# Connection Checkup · 1ms.dog
+# Network X-Ray · 1ms.dog
 
 > One run that chains eight 1ms.dog network tools into one graded report: Who Are You (what websites can tell about
 > the visitor), IP Quality Test, EgressLens (which exit each site sees), IPv6 Test, DNS Test, the Streaming & AI

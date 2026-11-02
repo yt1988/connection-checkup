@@ -1,7 +1,7 @@
 export default {
   name: "English",
-  app_name: "Connection Checkup",
-  seo_title: "Connection Checkup: IP quality, unlock, speed, privacy and DNS in one graded report · Connection Checkup",
+  app_name: "Network X-Ray",
+  seo_title: "Network X-Ray: IP quality, unlock, speed, privacy and DNS in one graded report · Network X-Ray",
   seo_desc: "A full checkup of your internet connection in one click: IP quality and reputation, streaming and AI unlock, download and upload speed, WebRTC and DNS leaks, IPv6 and latency to common services. Eight tests chained in about 90 seconds, one A to F grade, one link to share. Nothing to install.",
   seo_kw: "connection checkup, internet connection test, IP checkup, IP quality test, VPN check, proxy check, unlock test, network health check, speed test, DNS leak test, IPv6 test",
   og_sub: "Eight network tests in one run, one grade, one link",

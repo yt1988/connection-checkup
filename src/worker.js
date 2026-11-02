@@ -1,4 +1,4 @@
-// The Connection Checkup Worker. Files in ./public are served before it runs, so it only sees paths that are not
+// The Network X-Ray (Connection Checkup) Worker. Files in ./public are served before it runs, so it only sees paths that are not
 // files:
 //   /r/<summary>, /<lang>/r/<summary>   a shared report: that language's page with the grades in its title, description
 //                              and preview image (what chat apps show), not indexed; the page itself reads the summary,

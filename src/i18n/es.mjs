@@ -1,7 +1,7 @@
 export default {
   name: "Español",
-  app_name: "Chequeo de conexión",
-  seo_title: "Chequeo de conexión: calidad de IP, desbloqueo, velocidad, privacidad y DNS en un informe con nota · Chequeo de conexión",
+  app_name: "Rayos X de red",
+  seo_title: "Rayos X de red: calidad de IP, desbloqueo, velocidad, privacidad y DNS en un informe con nota · Rayos X de red",
   seo_desc: "Un chequeo completo de tu conexión a internet con un clic: calidad y reputación de la IP, desbloqueo de streaming e IA, velocidad de descarga y subida, fugas de WebRTC y DNS, IPv6 y latencia a los servicios habituales. Ocho pruebas encadenadas en unos 90 segundos, una nota de A a F y un enlace para compartir. Sin instalar nada.",
   seo_kw: "chequeo de conexión, test de conexión a internet, chequeo de IP, test de calidad de IP, comprobar VPN, comprobar proxy, test de desbloqueo, salud de la red, test de velocidad, fuga de DNS, test IPv6",
   og_sub: "Ocho pruebas de red en una sola, una nota, un enlace",

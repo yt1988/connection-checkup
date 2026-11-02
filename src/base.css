@@ -1,4 +1,4 @@
-/* Connection Checkup. Same tokens as the other 1ms.dog tools, so the site's top bar and the page switch theme
+/* Network X-Ray (Connection Checkup). Same tokens as the other 1ms.dog tools, so the site's top bar and the page switch theme
    together. The accent is fuchsia; grades run from green (A, t1) to red (F, t5). */
 :root {
   --bg: #f6f6f7; --panel: #ffffff; --soft: #f0f0f2; --line: #e4e4e8;

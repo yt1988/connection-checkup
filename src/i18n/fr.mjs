@@ -1,7 +1,7 @@
 export default {
   name: "Français",
-  app_name: "Bilan de connexion",
-  seo_title: "Bilan de connexion : qualité d’IP, déblocage, débit, confidentialité et DNS dans un rapport noté · Bilan de connexion",
+  app_name: "Rayons X du réseau",
+  seo_title: "Rayons X du réseau : qualité d’IP, déblocage, débit, confidentialité et DNS dans un rapport noté · Rayons X du réseau",
   seo_desc: "Un bilan complet de votre connexion internet en un clic : qualité et réputation de l’IP, déblocage streaming et IA, débit descendant et montant, fuites WebRTC et DNS, IPv6 et latence vers les services courants. Huit tests enchaînés en 90 secondes environ, une note de A à F, un lien à partager. Rien à installer.",
   seo_kw: "bilan de connexion, test de connexion internet, bilan IP, test qualité IP, vérifier VPN, vérifier proxy, test de déblocage, santé du réseau, test de débit, fuite DNS, test IPv6",
   og_sub: "Huit tests réseau en un seul, une note, un lien",
