@@ -55,7 +55,6 @@ export default {
   x_dns_region: "DNS と出口の地域が違います：DNS は{a}、出口は{b}。",
   x_bloat: "回線が混雑：ダウンロード中に遅延が大きく上がります。",
   x_v6_slow: "IPv6 が通信を遅くしています。",
-  shared_on: "共有されたレポート · {date}", test_mine: "自分の回線をチェック",
   partial: "このリンクには概要のみが含まれ、詳細は含まれていません。",
   share: "共有",
   share_text: "私のネットワーク透視：{detail}。あなたは？",

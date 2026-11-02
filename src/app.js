@@ -70,7 +70,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
   /* ---------- state ---------- */
   const card = id => $(`.tool[data-tool="${id}"]`), chip = id => $(`#chips li[data-tool="${id}"]`);
   const S = { status: {}, results: {}, errors: {}, frames: {}, heights: {}, pct: {} };   // status: wait | run | done | timeout | error | na | stopped
-  let RUN = null, LAST = null, OV = null, TIMER = null, SHARED = false, PHASE = 0;
+  let RUN = null, LAST = null, OV = null, TIMER = null, SHARED = false, PHASE = 0, RECV = null;
   // Blocked: an ad blocker (uBlock, AdGuard…) stops the tools' probes, and they fail or say nothing. The run ends as
   // soon as that is clear, instead of waiting out every phase: nothing heard SILENCE ms into the first phase, or more
   // than half of a phase's tools failing (docs/checkup.md).
@@ -228,7 +228,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
 
   async function start() {
     if (RUN) { RUN.abort = true; return; }
-    if (SHARED) { SHARED = false; $("#shared").hidden = true; history.replaceState(null, "", D.paths[D.lang] + location.search); }
+    if (SHARED) { SHARED = false; history.replaceState(null, "", D.paths[D.lang] + location.search); }
     reset();
     const me = RUN = { abort: false, t0: performance.now(), heard: false, blocked: false };
     $("#hero").dataset.st = "run"; $("#secs").hidden = true; $("#tools").hidden = false; $("#mockNote").hidden = !MOCK;
@@ -268,6 +268,8 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     for (const id of TOOLS) if (!S.results[id]) missing[id] = S.status[id];
     LAST = { v: 1, ts: Date.now(), lang: D.lang, tools: { ...S.results }, missing };
     render(LAST, false);
+    // the visitor's own report now stands where the shared one was: the "shared on" banner no longer applies
+    if (RECV) { RECV.remove(); RECV = null; }
     if (blocked) {
       // what finished still counts; with nothing finished the sections would only say "not finished", so they go
       $("#blocked").hidden = false;
@@ -340,43 +342,36 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
   $("#go").onclick = start;
   // a fresh page after the visitor turns the blocker off: some extensions only let requests through after a reload
   $("#retry").onclick = () => { location.href = D.paths[D.lang] + "?start=1" + (MOCK ? "&mock=1" : ""); };
-  $("#testMine").onclick = () => { if (!RUN) start(); };
 
   /* ---------- share: the 1ms.dog share dialog (/assets/share/, copied verbatim from 1ms-shell), loaded on use ---------- */
   // The link: the summary in the path (the grades and key numbers, for the preview title), the whole report after
   // the # (never sent to the server). The card: the overall grade, the five sections, the top findings.
   const detail = () => { const keys = keyStats(LAST.tools), p = [`${t("app_name")} ${OV.grade || "–"}`]; if (OV.sections.ipqs.grade) p.push(`${t("k_ipqs")} ${OV.sections.ipqs.grade}`); if (keys.unlock) p.push(`${t("k_unlock")} ${keys.unlock.works}/${keys.unlock.total}`); if (keys.down != null) p.push(`${t("k_down")} ${mbps(keys.down)} Mbps`); return p.join(" · "); };
   const shareLink = () => location.origin + D.paths[D.lang] + "r/" + encodeSummary(summaryOf(LAST, OV, keyStats(LAST.tools))) + "#" + encodeFull(LAST);
+  // Drawn at 1200×630, the link preview's own size, so the stored preview (share v2) is this card unscaled: the overall
+  // grade and the five section grades are the largest things on it, the findings stay on the page.
   async function drawCard(x, kit) {
     const { W, P, F, v, roundRect, clip, top } = kit, y = n => top + n, g = OV.grade;
     const col = g ? v(gradeTier(g)) : v("muted");
     x.textBaseline = "alphabetic";
-    x.fillStyle = col + "22"; roundRect(x, P, y(0), 200, 200, 36); x.fill();
-    x.fillStyle = col; x.font = `800 150px ${F}`; x.textAlign = "center"; x.fillText(g || "–", P + 100, y(150)); x.textAlign = "left";
-    x.fillStyle = v("fg"); x.font = `700 36px ${F}`;
-    const head = g ? t("v_" + gradeKey(g)) : t("v_none"), words = head.split(/(?<=[ ，、。：])/), lines = [];
+    x.fillStyle = col + "22"; roundRect(x, P, y(0), 170, 170, 32); x.fill();
+    x.fillStyle = col; x.font = `800 ${g && g.length > 1 ? 112 : 128}px ${F}`; x.textAlign = "center"; x.fillText(g || "–", P + 85, y(130)); x.textAlign = "left";
+    x.fillStyle = v("fg"); x.font = `700 40px ${F}`;
+    const head = g ? t("v_" + gradeKey(g)) : t("v_none"), words = head.split(/(?<=[ ，、。：])/), lines = [], tw = W - P * 2 - 205;
     let cur = "";
-    for (const w of words) { if (cur && x.measureText(cur + w).width > W - P * 2 - 240) { lines.push(cur); cur = ""; } cur += w; }
+    for (const w of words) { if (cur && x.measureText(cur + w).width > tw) { lines.push(cur); cur = ""; } cur += w; }
     if (cur) lines.push(cur);
-    lines.slice(0, 2).forEach((l, i) => x.fillText(clip(x, l, W - P * 2 - 240), P + 240, y(62 + i * 48)));
-    x.fillStyle = v("muted"); x.font = `500 26px ${F}`; x.fillText(clip(x, detail(), W - P * 2 - 240), P + 240, y(lines.length > 1 ? 172 : 124));
-    // the five sections
-    const cw = (W - P * 2 - 4 * 16) / 5;
+    lines.slice(0, 2).forEach((l, i) => x.fillText(clip(x, l, tw), P + 205, y(56 + i * 50)));
+    x.fillStyle = v("muted"); x.font = `500 27px ${F}`; x.fillText(clip(x, detail(), tw), P + 205, y(lines.length > 1 ? 158 : 112));
+    // the five sections, each grade as large as the space allows
+    const gap = 14, cw = (W - P * 2 - 4 * gap) / 5;
     SECTIONS.forEach((s, i) => {
-      const sg = OV.sections[s.id].grade, c = sg ? v(gradeTier(sg)) : v("muted"), at = P + i * (cw + 16);
-      x.fillStyle = sg ? c + "1f" : v("soft"); roundRect(x, at, y(240), cw, 120, 18); x.fill();
+      const sg = OV.sections[s.id].grade, c = sg ? v(gradeTier(sg)) : v("muted"), at = P + i * (cw + gap);
+      x.fillStyle = sg ? c + "1f" : v("soft"); roundRect(x, at, y(192), cw, 160, 20); x.fill();
       x.textAlign = "center";
-      x.fillStyle = c; x.font = `800 52px ${F}`; x.fillText(sg || "–", at + cw / 2, y(305));
-      x.fillStyle = v("muted"); x.font = `500 20px ${F}`; x.fillText(clip(x, t("sec_" + s.id), cw - 20), at + cw / 2, y(345));
+      x.fillStyle = c; x.font = `800 80px ${F}`; x.fillText(sg || "–", at + cw / 2, y(282));
+      x.fillStyle = v("fg"); x.font = `600 24px ${F}`; x.fillText(clip(x, t("sec_" + s.id), cw - 20), at + cw / 2, y(328));
       x.textAlign = "left";
-    });
-    // the top findings
-    const cross = crossFindings(LAST.tools).map(c => ({ level: c.level, text: crossText(c) })), own = topFindings(LAST.tools, 3);
-    const finds = cross.concat(own).slice(0, 3);
-    finds.forEach((f, i) => {
-      const yy = y(410 + i * 46);
-      x.fillStyle = v(f.level === "bad" ? "t5" : f.level === "warn" ? "t3" : "t1"); x.beginPath(); x.arc(P + 10, yy - 9, 8, 0, Math.PI * 2); x.fill();
-      x.fillStyle = v("fg"); x.font = `500 25px ${F}`; x.fillText(clip(x, f.text, W - P * 2 - 40), P + 34, yy);
     });
   }
   $("#shareBtn").onclick = async () => {
@@ -387,7 +382,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
       show: [], never: ["ip"],
       link: shareLink, home: location.origin + D.paths[D.lang],
       text: () => t("share_text", { detail: detail() }),
-      height: 790, draw: drawCard,
+      height: 630, draw: drawCard,
       foot: () => [t("card_sub")],
       ts: LAST.ts,
     }).open();
@@ -411,9 +406,13 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
       for (const s of SECTIONS) { gradeEl($("#sg-" + s.id), sum.sections[s.id]); const sh = $("#sh-" + s.id); sh.className = "sec-head m"; sh.textContent = sum.sections[s.id] ? "" : t("sec_none"); }
       $("#shareBtn").disabled = true;
     }
-    $("#sharedTxt").textContent = t("shared_on", { date: new Date(sum.ts).toLocaleString(D.lang, { dateStyle: "medium", timeStyle: "short" }) });
-    $("#sharedNote").textContent = full ? "" : t("partial");
-    $("#shared").hidden = false;
+    if (!full) $("#vMiss").textContent = t("partial");
+    // the shared-result banner is the share component's (1ms-shell docs/tool-contract.md §4): when it was measured,
+    // and "test mine", which runs a whole checkup; no compare mode here, so no done()
+    import("/assets/share/share.js").then(({ received }) => {
+      if (!SHARED) return;
+      RECV = received({ lang: D.lang, ts: sum.ts, at: $("#hero"), test: () => { if (!RUN) start(); } });
+    }).catch(() => {});
     $("#progTxt").innerHTML = "&nbsp;";
     setGo("idle");
   }

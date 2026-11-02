@@ -55,7 +55,6 @@ export default {
   x_dns_region: "DNS und Ausgang liegen in verschiedenen Regionen: DNS in {a}, Ausgang in {b}.",
   x_bloat: "Überlastete Leitung: die Latenz steigt beim Download stark an.",
   x_v6_slow: "IPv6 bremst dich aus.",
-  shared_on: "Geteilter Bericht · {date}", test_mine: "Meine Verbindung prüfen",
   partial: "Dieser Link enthält nur die Zusammenfassung; die vollständigen Details fehlen.",
   share: "Teilen",
   share_text: "Mein Netz-Röntgen: {detail}. Und deiner?",

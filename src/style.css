@@ -30,7 +30,11 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 .chips li[data-st="timeout"] i, .chips li[data-st="error"] i { background: var(--t5); } .chips li[data-st="timeout"] em, .chips li[data-st="error"] em { color: var(--t5); }
 .chips li[data-st="na"] i, .chips li[data-st="stopped"] i { background: var(--muted); }
 /* the verdict: a big grade beside the sentence and the line of numbers */
-.verdict { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 18px; align-items: center; }
+.verdict { display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; gap: 18px; align-items: center; }
+/* the share button: outlined in the accent, shown only once there is a report to share */
+.btn.share { height: 38px; padding: 0 16px; color: var(--ink); border-color: color-mix(in srgb, var(--ink) 55%, transparent); background: var(--ink-soft); font-weight: 600; }
+.btn.share:hover { border-color: var(--ink); }
+.btn.share:disabled { display: none; }
 .g-big { position: relative; height: 112px; border-radius: 22px; display: grid; place-items: center; font: 800 56px/1 var(--f-ui); letter-spacing: -.03em; background: var(--soft); color: var(--muted); }
 /* while the run goes: a ring (finished tools over eight) around the count */
 .g-big .ring { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); transform: rotate(-90deg); display: none; pointer-events: none; }
@@ -91,9 +95,6 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 .hero:not([data-st="idle"]) .intro, .hero[data-st="done"] .chips { display: none; }
 .hero[data-st="run"] .chips { justify-content: flex-start; }
 /* a shared report: a banner above the hero, with the way back to one's own checkup */
-.shared { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 12px 10px 16px; border-radius: var(--r); background: var(--ink-soft); border: 1px solid color-mix(in srgb, var(--ink) 30%, transparent); font-size: 13.5px; }
-.shared .btn { height: 32px; font-size: 13px; }
-.shared .m { display: block; font-size: 12.5px; }
 
 /* the five sections */
 .secs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
@@ -184,6 +185,7 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 @media (max-width: 720px) {
   .hero { padding: 12px 16px 0; gap: 14px; }
   .verdict { grid-template-columns: 84px minmax(0, 1fr); gap: 12px; }
+  .btn.share { grid-column: 2; justify-self: start; height: 34px; }
   .g-big { height: 84px; font-size: 42px; border-radius: 18px; }
   .v-head { font-size: 16px; }
   .keys { gap: 8px; }
@@ -191,8 +193,6 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
   .bar { margin: 0 -16px; padding: 10px 16px 12px; flex-wrap: wrap; row-gap: 8px; }
   .prog-t { flex: 1 0 100%; order: -1; }
   .auto { margin-right: auto; }
-  #shareBtn span { display: none; }
-  #shareBtn { width: 34px; padding: 0; }
   .secs { grid-template-columns: minmax(0, 1fr); }
   .sec:last-child:nth-child(odd) { grid-column: auto; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }

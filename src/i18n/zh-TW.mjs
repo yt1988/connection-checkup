@@ -55,7 +55,6 @@ export default {
   x_dns_region: "DNS 和出口不在同一地區：DNS 在{a}，出口在{b}。",
   x_bloat: "線路壅塞：下載時延遲明顯上升。",
   x_v6_slow: "IPv6 拖慢了連線。",
-  shared_on: "分享的報告 · {date}", test_mine: "測我自己的線路",
   partial: "這條連結只帶摘要，完整細節未包含在連結裡。",
   share: "分享",
   share_text: "我的網路透視：{detail}。你的呢？",

@@ -42,7 +42,7 @@
 <meta name="twitter:description" content="Huit tests réseau en un seul, une note, un lien">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Rayons X du réseau · 1ms.dog","url":"https://check.1ms.dog/fr/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"Un bilan complet de votre connexion internet en un clic : qualité et réputation de l’IP, déblocage streaming et IA, débit descendant et montant, fuites WebRTC et DNS, IPv6 et latence vers les services courants. Huit tests enchaînés en 90 secondes environ, une note de A à F, un lien à partager. Rien à installer.","inLanguage":"fr","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que fait le bilan ?","acceptedAnswer":{"@type":"Answer","text":"Il exécute huit outils 1ms.dog l’un après l’autre dans cette page et combine leurs résultats : Qui êtes-vous ? (ce qu’un site peut deviner de vous), Test qualité IP, Loupe IP (quelle sortie chaque site voit), Test IPv6, Test DNS, Déblocage streaming/IA, le test de latence vers les services de 1ms.dog et le Test de débit. Chaque outil tourne dans son propre cadre, affiche sa progression et son résultat, puis transmet ses chiffres à cette page. Rien n’est mesuré deux fois ni simplifié : les chiffres ici sont ceux que l’outil affiche lui-même."}},{"@type":"Question","name":"Pourquoi trois étapes et environ 90 secondes ?","acceptedAnswer":{"@type":"Answer","text":"Les mesures de latence et de DNS sont sensibles au reste du trafic, donc le test de débit passe en dernier, seul. L’étape 1 lance ensemble identité, IP, sorties, IPv6 et DNS ; l’étape 2 le déblocage et la latence vers les services ; l’étape 3 le débit. Chaque étape attend tous ses outils ou 90 secondes, au premier des deux. Un outil qui ne répond pas à temps est marqué non terminé et exclu de la note."}},{"@type":"Question","name":"Comment la note est-elle calculée ?","acceptedAnswer":{"@type":"Answer","text":"Cinq sections, chacune notée de A+ à F d’après ses outils : la qualité d’IP compte pour 25 %, le déblocage 20 %, le débit 20 %, identité et confidentialité 20 %, la connectivité (IPv6, DNS, latence vers les services) 15 %. La note globale est la moyenne pondérée des sections terminées ; une section non terminée est exclue et le rapport le dit. Un outil qui note son propre résultat (qualité d’IP, IPv6) garde sa note ; les autres sont notés d’après leurs faits : combien de services fonctionnent, la vitesse du téléchargement et la hausse de latence en charge, ce qui fuit ou ne concorde pas, la rapidité du DNS et des services courants."}},{"@type":"Question","name":"Que sont les constats entre outils ?","acceptedAnswer":{"@type":"Answer","text":"Certaines conclusions n’apparaissent qu’en rapprochant les résultats : une IP de centre de données avec un fuseau horaire d’un autre pays (déguisement incomplet) ; tous les services d’IA bloqués avec une sortie dans une région restreinte ; un routage séparé qui envoie l’IA et le streaming par des pays différents ; un DNS dans une autre région que la sortie ; une latence qui grimpe pendant un téléchargement. Ils sont placés en tête du rapport."}},{"@type":"Question","name":"Mes données quittent-elles mon navigateur ?","acceptedAnswer":{"@type":"Answer","text":"Les outils tournent dans votre navigateur comme d’habitude ; cette page ne reçoit leurs résultats que par la messagerie entre cadres du navigateur, et seulement des outils qu’elle a ouverts. Le lien de partage est construit dans votre navigateur : il porte les notes et les liens de résultat des outils, jamais votre adresse IP. Le lien de chaque outil suit le réglage de confidentialité par défaut de cet outil, qui exclut l’adresse."}},{"@type":"Question","name":"Quelle différence avec les scripts IPQuality ou NodeQuality ?","acceptedAnswer":{"@type":"Answer","text":"Ces scripts s’exécutent sur un serveur par SSH et ne peuvent tester que l’IP du serveur. Ce bilan tourne dans le navigateur : il mesure la connexion que vous utilisez à l’instant, votre ligne à la maison, votre téléphone, un proxy ou un nœud, avec la vue du navigateur sur le fuseau horaire, la langue et WebRTC qu’un script serveur n’a pas. Il vous donne aussi un lien et une carte à partager."}}]}]}</script>
 <link rel="preload" href="/assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/app.d0ba3c4827.css">
+<link rel="stylesheet" href="/assets/app.4f010174bb.css">
 </head>
 <body>
 <div class="app">
@@ -69,7 +69,6 @@
   </header>
 
   <main>
-    <div class="shared" id="shared" hidden><span><span id="sharedTxt"></span><span class="m" id="sharedNote"></span></span><button class="btn pri" id="testMine" type="button" data-i="test_mine">Tester ma connexion</button></div>
     <section class="hero card" id="hero" data-st="idle">
       <h1>Votre connexion est-elle en forme ?</h1>
       <p class="intro"><span data-i="intro">Une seule exécution enchaîne huit tests 1ms.dog : qui les sites croient que vous êtes, qualité de l’IP, sorties, IPv6, DNS, déblocage, latence vers les services et débit. Chaque outil mesure et affiche son propre résultat ; à la fin, une note.</span><b data-i="intro_time">Environ 90 secondes. Le test de débit à la fin consomme un peu de données.</b></p>
@@ -81,6 +80,8 @@
       <div class="verdict">
         <div class="g-big" id="vGrade"><svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-bg" cx="50" cy="50" r="46"/><circle class="ring-fg" id="vRing" cx="50" cy="50" r="46" pathLength="100"/></svg><span id="vGradeT">–</span></div>
         <div class="v-text"><p class="v-head" id="vHead">&nbsp;</p><p class="v-sub" id="vSub">&nbsp;</p><p class="v-miss" id="vMiss"></p></div>
+        <!-- share sits on the verdict's row: the moment the grade appears is when it gets shared -->
+        <button class="btn share" id="shareBtn" type="button" aria-haspopup="dialog" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 10V2M5 5l3-3 3 3M3 9v4.5h10V9"/></svg><span data-i="share">Partager</span></button>
       </div>
       <ul class="keys" id="keys">
         <li><span data-i="k_ipqs">Qualité d’IP</span><b id="kIpqs">–</b><em id="kIpqsS"></em></li>
@@ -92,7 +93,6 @@
       <div class="bar">
         <span class="prog-t" id="progTxt">&nbsp;</span>
         <label class="auto"><input type="checkbox" id="auto"><span class="sw" aria-hidden="true"></span><span data-i="auto_label">Lancer à l’ouverture de la page</span></label>
-        <button class="btn sm" id="shareBtn" type="button" aria-haspopup="dialog" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 10V2M5 5l3-3 3 3M3 9v4.5h10V9"/></svg><span data-i="share">Partager</span></button>
         <button class="btn pri go" id="go" type="button" data-st="idle"><span id="goT" data-i="start">Lancer le bilan</span></button>
         <div class="prog" aria-hidden="true"><i id="progBar"></i></div>
       </div>
@@ -126,7 +126,7 @@
 </div>
 
 <script type="application/json" id="data">{"lang":"fr","paths":{"en":"/","zh-CN":"/zh-cn/","zh-TW":"/zh-tw/","ja":"/ja/","ko":"/ko/","es":"/es/","fr":"/fr/","de":"/de/","pt":"/pt/","ru":"/ru/"},"names":{"who":"Qui êtes-vous ?","ipqs":"Test qualité IP","egress":"Loupe IP","ipv6":"Test IPv6","dns":"Test DNS","unlock":"Déblocage streaming/IA","home":"1ms.dog","speed":"Test de débit"},"mock":"/assets/mock.8e3011f032.json"}</script>
-<script src="/assets/l.fr.f23075d791.js"></script>
-<script src="/assets/app.b53b3476d8.js"></script>
+<script src="/assets/l.fr.83d569d786.js"></script>
+<script src="/assets/app.e70206e7f5.js"></script>
 </body>
 </html>

@@ -55,7 +55,6 @@ export default {
   x_dns_region: "DNS and the exit are in different regions ({a} and {b}).",
   x_bloat: "A congested line: latency rises sharply while downloading.",
   x_v6_slow: "IPv6 is slowing you down.",
-  shared_on: "A shared report · {date}", test_mine: "Check my own connection",
   partial: "This link carries only the summary; the full details were not included.",
   share: "Share",
   share_text: "My connection checkup: {detail}. What's yours?",

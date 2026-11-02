@@ -55,7 +55,6 @@ export default {
   x_dns_region: "DNS와 출구의 지역이 다릅니다: DNS는 {a}, 출구는 {b}.",
   x_bloat: "회선 혼잡: 다운로드 중 지연이 크게 늘어납니다.",
   x_v6_slow: "IPv6가 접속을 느리게 하고 있습니다.",
-  shared_on: "공유된 보고서 · {date}", test_mine: "내 네트워크 투시하기",
   partial: "이 링크에는 요약만 있고 전체 세부 정보는 포함되지 않았습니다.",
   share: "공유",
   share_text: "내 네트워크 투시: {detail}. 당신은요?",

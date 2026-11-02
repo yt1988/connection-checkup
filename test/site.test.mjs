@@ -39,7 +39,7 @@ test("every slot of the report is drawn before anything runs", async () => {
   assert.match(h, /<section class="tools card" id="tools" data-open="0" hidden>/, "the test log starts collapsed");
   for (const id of TOOLS) assert.match(h, new RegExp(`<li data-tool="${id}" data-st="wait">`), id + " chip");
   for (const s of SECTIONS) for (const p of ["sg", "sh", "ss", "sf", "sl"]) assert.match(h, new RegExp(`id="${p}-${s.id}"`), `${p}-${s.id}`);
-  for (const id of ["vGrade", "vHead", "vSub", "vMiss", "kIpqs", "kUnlock", "kDown", "finds", "progTxt", "go", "shareBtn", "shared"]) assert.match(h, new RegExp(`id="${id}"`), id);
+  for (const id of ["vGrade", "vHead", "vSub", "vMiss", "kIpqs", "kUnlock", "kDown", "finds", "progTxt", "go", "shareBtn"]) assert.match(h, new RegExp(`id="${id}"`), id);
   assert.match(h, /<section class="hero card" id="hero" data-st="idle">/);
 });
 
