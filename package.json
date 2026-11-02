@@ -1,0 +1,23 @@
+{
+  "name": "connection-checkup",
+  "private": true,
+  "type": "module",
+  "description": "Connection Checkup: one run that chains the 1ms.dog network tools (who are you, IP quality, egress, unlock, IPv6, DNS, speed, service latency) into one graded report with a shareable link and card",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/build.mjs --check && node --test \"test/*.test.mjs\"",
+    "assets": "node scripts/assets.mjs",
+    "dev": "wrangler dev --port 8797",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "esbuild": "0.25.10"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yt1988/connection-checkup"
+  },
+  "homepage": "https://check.1ms.dog"
+}
