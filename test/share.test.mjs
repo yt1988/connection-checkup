@@ -53,6 +53,6 @@ test("the summary of a report, and the Worker's preview title", () => {
   const ov = overall(results), keys = keyStats(results);
   const sum = decodeSummary(encodeSummary(summaryOf({ ts: Date.now() }, ov, keys)));
   assert.equal(sum.sections.ipqs, "A"); assert.equal(sum.works, 30); assert.equal(sum.down, 313);
-  assert.equal(titleParts(zh, sum).join(" · "), `线路体检 ${ov.grade} · IP 质量 A · 可用服务 30/33 · 下载 313 Mbps`);
-  assert.equal(titleParts(en, decodeSummary(encodeSummary({ ts: 1, total: "B" }))).join(" · "), "Connection Checkup B");
+  assert.equal(titleParts(zh, sum).join(" · "), `网络透视 ${ov.grade} · IP 质量 A · 可用服务 30/33 · 下载 313 Mbps`);
+  assert.equal(titleParts(en, decodeSummary(encodeSummary({ ts: 1, total: "B" }))).join(" · "), "Network X-Ray B");
 });
