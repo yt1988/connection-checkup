@@ -370,7 +370,12 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
       x.fillStyle = sg ? c + "1f" : v("soft"); roundRect(x, at, y(192), cw, 160, 20); x.fill();
       x.textAlign = "center";
       x.fillStyle = c; x.font = `800 80px ${F}`; x.fillText(sg || "–", at + cw / 2, y(282));
-      x.fillStyle = v("fg"); x.font = `600 24px ${F}`; x.fillText(clip(x, t("sec_" + s.id), cw - 20), at + cw / 2, y(328));
+      // long names (French, Russian, German) get a smaller font before they get an ellipsis
+      const label = t("sec_" + s.id);
+      let fs = 24;
+      x.fillStyle = v("fg"); x.font = `600 ${fs}px ${F}`;
+      while (fs > 17 && x.measureText(label).width > cw - 20) { fs--; x.font = `600 ${fs}px ${F}`; }
+      x.fillText(clip(x, label, cw - 20), at + cw / 2, y(328));
       x.textAlign = "left";
     });
   }
