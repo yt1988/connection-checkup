@@ -357,7 +357,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     x.fillStyle = col + "22"; roundRect(x, P, y(0), 170, 170, 32); x.fill();
     x.fillStyle = col; x.font = `800 ${g && g.length > 1 ? 112 : 128}px ${F}`; x.textAlign = "center"; x.fillText(g || "–", P + 85, y(130)); x.textAlign = "left";
     x.fillStyle = v("fg"); x.font = `700 40px ${F}`;
-    const head = g ? t("v_" + gradeKey(g)) : t("v_none"), words = head.split(/(?<=[ ，、。：])/), lines = [], tw = W - P * 2 - 205;
+    const head = g ? t("v_" + gradeKey(g)) : t("v_none"), words = head.replace(/([ ，、。：])/g, "$1\n").split("\n").filter(Boolean), lines = [], tw = W - P * 2 - 205;
     let cur = "";
     for (const w of words) { if (cur && x.measureText(cur + w).width > tw) { lines.push(cur); cur = ""; } cur += w; }
     if (cur) lines.push(cur);

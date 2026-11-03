@@ -1,7 +1,7 @@
 // The built pages keep the 1ms.dog tool contract (1ms-shell docs/tool-contract.md) and draw every slot up front.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { LANGS, FRAME_SRC } from "../scripts/build.mjs";
 import { TOOLS, SECTIONS, nameOf } from "../src/tools.mjs";
 
@@ -55,4 +55,11 @@ test("the CSP frames the tools' hosts and nothing frames this page", async () =>
 test("shared reports are not indexed, the pages are", async () => {
   const r = await readFile(new URL("../public/robots.txt", import.meta.url), "utf8");
   assert.match(r, /Disallow: \/r\//); assert.match(r, /Disallow: \/zh-cn\/r\//); assert.match(r, /Sitemap: https:\/\/check\.1ms\.dog\/sitemap\.xml/);
+});
+
+test("no served script uses regex lookbehind (Safari before 16.4 can't parse it)", async () => {
+  const root = new URL("../public/", import.meta.url);
+  const files = (await readdir(root, { recursive: true })).filter(f => /\.m?js$/.test(f));
+  assert.ok(files.length > 3, "found the scripts");
+  for (const f of files) assert.doesNotMatch(await readFile(new URL(f.replace(/\\/g, "/"), root), "utf8"), /\(\?<[=!]/, f);
 });

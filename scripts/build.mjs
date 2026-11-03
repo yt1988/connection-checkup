@@ -54,6 +54,8 @@ export async function build({ check = false } = {}) {
   const root = fileURLToPath(new URL("..", import.meta.url));
   const js = (await bundle({ entryPoints: [fileURLToPath(new URL("app.js", src))], bundle: true, minify: true, format: "iife", target: "es2020",
     legalComments: "none", write: false, absWorkingDir: root, external: ["/assets/*"] })).outputFiles[0].text;
+  // regex lookbehind, (?<= or (?<!, is a syntax error in Safari before 16.4: the whole script fails to parse there
+  if (/\(\?<[=!]/.test(js)) throw new Error("src/: regex lookbehind (?<= or (?<! in the page script; Safari before 16.4 can't parse it");
   const cssFull = (await Promise.all(["fonts.css", "base.css", "style.css"].map(f => readFile(new URL(f, src), "utf8")))).join("\n");
   const css = (await transform(cssFull, { loader: "css", minify: true, legalComments: "none" })).code;
   const jsName = `app.${hash(js)}.js`, cssName = `app.${hash(css)}.css`;
