@@ -325,7 +325,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
     const c = card(id);
     c.dataset.open = open ? "1" : "0";
     c.querySelector("[data-tog]").setAttribute("aria-expanded", String(open));
-    c.querySelector("[data-tog-txt]").textContent = t(open ? "collapse" : "expand");
+    { const l = t(open ? "collapse" : "expand"); c.querySelector("[data-tog-txt]").textContent = l; c.querySelector("[data-tog]").setAttribute("aria-label", l); }
     sizeFrame(id);
   }
   function toggleTools(open) {
