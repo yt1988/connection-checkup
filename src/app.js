@@ -8,6 +8,7 @@
 import { TOOLS, PHASES, SECTIONS, PHASE_TIMEOUT, DEFAULT_ORIGINS } from "./tools.mjs";
 import { overall, crossFindings, keyStats, sectionFindings, sectionStats, topFindings, gradeTier, gradeLevel, gradeKey } from "./report.mjs";
 import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summaryOf } from "./share.mjs";
+import { regionName } from "./region.mjs";
 
 (function () {
   "use strict";
@@ -65,7 +66,7 @@ import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summar
   const embedURL = id => toolHome(id) + "?embed=checkup";
   const XL = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5 7.5 8.5M12 10v3.5H2.5V4H6"/></svg>';
   const xlink = (href, html) => `<a class="xl" href="${esc(href)}" target="_blank" rel="noopener">${html}${XL}</a>`;
-  const country = cc => { if (!cc) return ""; try { return new Intl.DisplayNames([D.lang], { type: "region" }).of(cc); } catch (e) { return cc; } };
+  const country = cc => { if (!cc) return ""; try { return regionName(cc, D.lang); } catch (e) { return cc; } };
 
   /* ---------- state ---------- */
   const card = id => $(`.tool[data-tool="${id}"]`), chip = id => $(`#chips li[data-tool="${id}"]`);
