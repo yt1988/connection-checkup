@@ -63,3 +63,8 @@ test("no served script uses regex lookbehind (Safari before 16.4 can't parse it)
   assert.ok(files.length > 3, "found the scripts");
   for (const f of files) assert.doesNotMatch(await readFile(new URL(f.replace(/\\/g, "/"), root), "utf8"), /\(\?<[=!]/, f);
 });
+
+test("the root's language redirect keeps the path, so an English shared report opens in the visitor's language", async () => {
+  const h = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
+  assert.match(h, /location\.replace\(P\[l\]\+location\.pathname\.slice\(1\)\+location\.search\+location\.hash\)/);
+});
