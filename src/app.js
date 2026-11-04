@@ -349,34 +349,42 @@ import { regionName } from "./region.mjs";
   // the # (never sent to the server). The card: the overall grade, the five sections, the top findings.
   const detail = () => { const keys = keyStats(LAST.tools), p = [`${t("app_name")} ${OV.grade || "–"}`]; if (OV.sections.ipqs.grade) p.push(`${t("k_ipqs")} ${OV.sections.ipqs.grade}`); if (keys.unlock) p.push(`${t("k_unlock")} ${keys.unlock.works}/${keys.unlock.total}`); if (keys.down != null) p.push(`${t("k_down")} ${mbps(keys.down)} Mbps`); return p.join(" · "); };
   const shareLink = () => location.origin + D.paths[D.lang] + "r/" + encodeSummary(summaryOf(LAST, OV, keyStats(LAST.tools))) + "#" + encodeFull(LAST);
-  // Drawn at 1200×630, the link preview's own size, so the stored preview (share v2) is this card unscaled: the overall
-  // grade and the five section grades are the largest things on it, the findings stay on the page.
+  // 1200 wide and 630 tall when everything fits on one line each, the link preview's own size, so the stored preview
+  // (share v2) is this card unscaled: the overall grade and the five section grades are the largest things on it, the
+  // findings stay on the page. No word is lost to "…" (1ms-shell docs/tool-contract.md, "Share card"): the verdict,
+  // the key numbers and the section names wrap, and the card grows to hold them.
+  function cardLayout(x, kit) {
+    const { W, P, F, fit, wrap } = kit, g = OV.grade, tw = W - P * 2 - 205;
+    const head = g ? t("v_" + gradeKey(g)) : t("v_none");
+    const hs = fit(x, head, tw, 40, 34), hl = wrap(x, head, tw, 4);
+    x.font = `500 27px ${F}`; const dl = wrap(x, detail(), tw, 4);
+    const text = 56 + (hl.length - 1) * (hs + 10) + 18 + dl.length * 36;
+    // the section names: one size for all five, the largest at which each fits in two lines
+    const gap = 14, cw = (W - P * 2 - 4 * gap) / 5, labels = SECTIONS.map(s => t("sec_" + s.id));
+    let ls = 24, ll;
+    for (;; ls -= 2) { x.font = `600 ${ls}px ${F}`; ll = labels.map(l => x.measureText(l).width <= cw - 20 ? [l] : wrap(x, l, cw - 20, 3)); if (ls <= 18 || ll.every(l => l.length <= 2)) break; }
+    const rows = Math.max(...ll.map(l => l.length)), tiles = Math.max(192, text + 22), th = 130 + rows * (ls + 6);
+    return { hs, hl, dl, gap, cw, ls, ll, tiles, th, height: kit.top + tiles + th + 78 };
+  }
   async function drawCard(x, kit) {
-    const { W, P, F, v, roundRect, clip, top } = kit, y = n => top + n, g = OV.grade;
+    const { P, F, v, roundRect, top } = kit, y = n => top + n, g = OV.grade, L = cardLayout(x, kit);
     const col = g ? v(gradeTier(g)) : v("muted");
     x.textBaseline = "alphabetic";
     x.fillStyle = col + "22"; roundRect(x, P, y(0), 170, 170, 32); x.fill();
     x.fillStyle = col; x.font = `800 ${g && g.length > 1 ? 112 : 128}px ${F}`; x.textAlign = "center"; x.fillText(g || "–", P + 85, y(130)); x.textAlign = "left";
-    x.fillStyle = v("fg"); x.font = `700 40px ${F}`;
-    const head = g ? t("v_" + gradeKey(g)) : t("v_none"), words = head.replace(/([ ，、。：])/g, "$1\n").split("\n").filter(Boolean), lines = [], tw = W - P * 2 - 205;
-    let cur = "";
-    for (const w of words) { if (cur && x.measureText(cur + w).width > tw) { lines.push(cur); cur = ""; } cur += w; }
-    if (cur) lines.push(cur);
-    lines.slice(0, 2).forEach((l, i) => x.fillText(clip(x, l, tw), P + 205, y(56 + i * 50)));
-    x.fillStyle = v("muted"); x.font = `500 27px ${F}`; x.fillText(clip(x, detail(), tw), P + 205, y(lines.length > 1 ? 158 : 112));
+    x.fillStyle = v("fg"); x.font = `700 ${L.hs}px ${F}`;
+    L.hl.forEach((l, i) => x.fillText(l, P + 205, y(56 + i * (L.hs + 10))));
+    const dy = 56 + (L.hl.length - 1) * (L.hs + 10) + 18;
+    x.fillStyle = v("muted"); x.font = `500 27px ${F}`;
+    L.dl.forEach((l, i) => x.fillText(l, P + 205, y(dy + 36 * (i + 1) - 4)));
     // the five sections, each grade as large as the space allows
-    const gap = 14, cw = (W - P * 2 - 4 * gap) / 5;
     SECTIONS.forEach((s, i) => {
-      const sg = OV.sections[s.id].grade, c = sg ? v(gradeTier(sg)) : v("muted"), at = P + i * (cw + gap);
-      x.fillStyle = sg ? c + "1f" : v("soft"); roundRect(x, at, y(192), cw, 160, 20); x.fill();
+      const sg = OV.sections[s.id].grade, c = sg ? v(gradeTier(sg)) : v("muted"), at = P + i * (L.cw + L.gap), ty = L.tiles;
+      x.fillStyle = sg ? c + "1f" : v("soft"); roundRect(x, at, y(ty), L.cw, L.th, 20); x.fill();
       x.textAlign = "center";
-      x.fillStyle = c; x.font = `800 80px ${F}`; x.fillText(sg || "–", at + cw / 2, y(282));
-      // long names (French, Russian, German) get a smaller font before they get an ellipsis
-      const label = t("sec_" + s.id);
-      let fs = 24;
-      x.fillStyle = v("fg"); x.font = `600 ${fs}px ${F}`;
-      while (fs > 17 && x.measureText(label).width > cw - 20) { fs--; x.font = `600 ${fs}px ${F}`; }
-      x.fillText(clip(x, label, cw - 20), at + cw / 2, y(328));
+      x.fillStyle = c; x.font = `800 80px ${F}`; x.fillText(sg || "–", at + L.cw / 2, y(ty + 90));
+      x.fillStyle = v("fg"); x.font = `600 ${L.ls}px ${F}`;
+      L.ll[i].forEach((l, j) => x.fillText(l, at + L.cw / 2, y(ty + 136 + j * (L.ls + 6))));
       x.textAlign = "left";
     });
   }
@@ -388,7 +396,7 @@ import { regionName } from "./region.mjs";
       show: [], never: ["ip"],
       link: shareLink, home: location.origin + D.paths[D.lang],
       text: () => t("share_text", { detail: detail() }),
-      height: 630, draw: drawCard,
+      height: (x, kit) => cardLayout(x, kit).height, draw: drawCard,
       foot: () => [t("card_sub")],
       ts: LAST.ts,
     }).open();
