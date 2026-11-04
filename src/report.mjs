@@ -34,6 +34,9 @@ function speedScore(f) {
   if (num(f.up) != null && f.up < 5 && f.up < f.down / 20) s -= 8;      // an upload far behind the download
   s -= { C: 8, D: 15, F: 25 }[f.bloat] || 0;                            // latency under load
   if (num(f.idle) != null && f.idle > 100) s -= 5;
+  // UDP from the Tokyo server (rtc.1ms.dog): calls, games and HTTP/3 ride on it
+  if (f.quic === false) s -= 8;
+  else s -= tiers(f.udpLoss, [2, 5, 20], [0, 3, 6, 12]) || 0;
   return clamp(s);
 }
 function whoScore(f) {
@@ -66,8 +69,9 @@ function dnsScore(f) {
   return clamp(s);
 }
 function v6Score(f) {
-  if (f.v6 === true) return f.slower ? 70 : f.native === false ? 85 : 95;
-  if (f.v6 === false) return 50;
+  const hole = f.blackhole === true ? 15 : 0;    // big packets vanish: some sites hang
+  if (f.v6 === true) return (f.slower ? 70 : f.native === false ? 85 : 95) - hole;
+  if (f.v6 === false) return 50 - hole;
   return null;
 }
 
@@ -114,11 +118,12 @@ export const AI_RESTRICTED = new Set(["CN", "HK", "MO", "RU", "BY", "IR", "KP", 
 const AI_IDS = ["chatgpt", "openai", "claude", "anthropic", "gemini", "copilot", "grok", "perplexity", "mistral", "poe", "characterai", "sora"];
 const mostCommon = arr => { const c = new Map(); for (const v of arr) if (v) c.set(v, (c.get(v) || 0) + 1); return [...c.entries()].sort((a, b) => b[1] - a[1]).map(e => e[0])[0] || null; };
 
-// The cross-tool findings (docs/checkup.md: seven rules), worst first, at most four. Each is a string key with its
-// parameters (country codes, for the page to name in its language) and a level: "bad" | "warn" | "ok".
+// The cross-tool findings (docs/checkup.md: seven rules, and the line-and-tunnel four), worst first, at most four.
+// Each is a string key with its parameters (country codes, for the page to name in its language; numbers as they
+// are) and a level: "bad" | "warn" | "ok".
 export function crossFindings(results) {
   const F = id => (results[id] && results[id].facts && typeof results[id].facts === "object" ? results[id].facts : null);
-  const who = F("who"), ipqs = F("ipqs"), eg = F("egress"), un = F("unlock"), v6 = F("ipv6"), sp = F("speed"), home = F("home");
+  const who = F("who"), ipqs = F("ipqs"), eg = F("egress"), un = F("unlock"), v6 = F("ipv6"), sp = F("speed"), home = F("home"), dns = F("dns");
   const out = [];
   if (ipqs && who && ipqs.type === "hosting" && who.tzMismatch) out.push({ level: "bad", key: "x_hosting_tz" });
   if ((who && who.webrtcLeak) || (eg && eg.leak)) out.push({ level: "bad", key: "x_leak" });
@@ -135,9 +140,20 @@ export function crossFindings(results) {
     const vals = Object.values(un.ai);
     if (vals.length && vals.every(v => v === false)) out.push({ level: "bad", key: "x_ai_blocked", params: { cc: eg.aiCountry } });
   }
-  if (who && who.dnsCountry && who.ipCountry && who.dnsCountry !== who.ipCountry) out.push({ level: "warn", key: "x_dns_region", params: { a: who.dnsCountry, b: who.ipCountry } });
+  // the resolver as the authoritative DNS saw it (dns) when there is one, else as who guessed it
+  const resolver = (dns && dns.resolverCountry) || (who && who.dnsCountry), exit = (who && who.ipCountry) || (ipqs && ipqs.country);
+  if (resolver && exit && resolver !== exit) out.push({ level: "warn", key: "x_dns_region", params: { a: resolver, b: exit } });
   if (sp && home && (sp.bloat === "D" || sp.bloat === "F") && num(home.median) != null && home.median > 150) out.push({ level: "warn", key: "x_bloat" });
   if (v6 && v6.v6 === true && v6.slower) out.push({ level: "warn", key: "x_v6_slow" });
+  // line and tunnel: what the Tokyo server sees of UDP (speed), the path MTU (ipv6) and the TCP handshake (who)
+  if (v6 && v6.blackhole === true) {
+    // the largest packet that got through, or a size that passes on most tunnels
+    const ok = [v6.mtu, v6.mtu6].filter(m => num(m) != null && m >= 1280 && m <= 1500);
+    out.push({ level: "bad", key: "x_blackhole", params: { mtu: ok.length ? Math.min(...ok) : 1400 } });
+  }
+  if (sp && sp.quic === false) out.push({ level: "warn", key: "x_udp_blocked" });
+  else if (sp && num(sp.udpLoss) != null && sp.udpLoss >= 5) out.push({ level: "warn", key: "x_udp_loss", params: { loss: Math.round(sp.udpLoss) } });
+  if (who && who.tunnel && ((ipqs && ipqs.type === "hosting") || who.dc)) out.push({ level: "warn", key: "x_tunnel_dc" });
   const lv = { bad: 0, warn: 1, ok: 2 };
   return out.sort((a, b) => lv[a.level] - lv[b.level]).slice(0, 4);
 }

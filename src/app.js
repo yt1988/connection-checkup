@@ -284,7 +284,7 @@ import { regionName } from "./region.mjs";
   /* ---------- the report ---------- */
   const gradeEl = (el, g, txt = el) => { txt.textContent = g || "–"; el.className = el.className.replace(/\bt\d\b/g, "").trim() + (g ? " " + gradeTier(g) : ""); if (g) el.dataset.g = g; else delete el.dataset.g; };
   const findLi = (f, src) => `<li data-lv="${esc(f.level)}"><span>${esc(f.text)}</span>${src ? `<span class="src">${esc(src)}</span>` : ""}</li>`;
-  const crossText = x => t(x.key, Object.fromEntries(Object.entries(x.params || {}).map(([k, v]) => [k, country(v)])));
+  const crossText = x => t(x.key, Object.fromEntries(Object.entries(x.params || {}).map(([k, v]) => [k, typeof v === "string" && /^[A-Z]{2}$/.test(v) ? country(v) : v])));
   const resHTML = r => `<p class="sec-head ${gradeLevel(r.grade)}">${esc(r.headline)}</p><ul class="stats">${r.stats.map(s => `<li><span>${esc(s.label)}</span><b>${esc(s.value)}</b></li>`).join("")}</ul><ul class="finds">${r.findings.map(f => findLi(f)).join("")}</ul>`;
 
   // the whole report from the tools' results: `shared` is someone else's (no frames to show)

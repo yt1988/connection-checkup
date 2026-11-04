@@ -133,3 +133,33 @@ test("the tools, phases and names are complete", () => {
   assert.equal(SECTIONS.reduce((a, s) => a + s.weight, 0), 100);
   for (const id of TOOLS) for (const l of LANGS_ALL) assert.ok(NAMES[id][l], `${id} has no name in ${l}`);
 });
+
+test("line and tunnel: UDP, QUIC, the path MTU and a tunnel to a data center (each fact optional)", () => {
+  const f = results => crossFindings(results);
+  const keys = results => f(results).map(x => x.key);
+  // QUIC blocked wins over the loss figure; loss under 5% says nothing
+  assert.deepEqual(keys({ speed: { facts: { quic: false, udpLoss: 40 } } }), ["x_udp_blocked"]);
+  assert.deepEqual(f({ speed: { facts: { quic: true, udpLoss: 12.4 } } }), [{ level: "warn", key: "x_udp_loss", params: { loss: 12 } }]);
+  assert.deepEqual(keys({ speed: { facts: { quic: true, udpLoss: 3 } } }), []);
+  // the black hole names the largest size that got through, or 1400 when none was measured
+  assert.deepEqual(f({ ipv6: { facts: { v6: false, blackhole: true, mtu: 1420 } } })[0].params, { mtu: 1420 });
+  assert.deepEqual(f({ ipv6: { facts: { v6: true, blackhole: true, mtu: 1420, mtu6: 1400 } } })[0].params, { mtu: 1400 });
+  assert.deepEqual(f({ ipv6: { facts: { blackhole: true } } })[0], { level: "bad", key: "x_blackhole", params: { mtu: 1400 } });
+  // a tunnel alone is no finding; with a data center IP it is
+  assert.deepEqual(keys({ who: { facts: { tunnel: "wireguard" } } }), []);
+  assert.deepEqual(keys({ who: { facts: { tunnel: "wireguard", dc: true } } }), ["x_tunnel_dc"]);
+  assert.deepEqual(keys({ who: { facts: { tunnel: "other" } }, ipqs: { facts: { type: "hosting" } } }), ["x_tunnel_dc"]);
+  // the authoritative DNS's resolver country comes before who's guess
+  assert.deepEqual(f({ dns: { facts: { resolverCountry: "US" } }, who: { facts: { dnsCountry: "JP", ipCountry: "JP" } } })[0].params, { a: "US", b: "JP" });
+  assert.deepEqual(keys({ dns: { facts: { resolverCountry: "JP" } }, who: { facts: { dnsCountry: "US", ipCountry: "JP" } } }), []);
+});
+
+test("line and tunnel in the scores: UDP in the speed test, the black hole in IPv6, a tunnel costs nothing", () => {
+  const sp = { down: 300, up: 100, bloat: "A" };
+  const base = toolScore("speed", { facts: sp });
+  assert.equal(toolScore("speed", { facts: { ...sp, udpLoss: 1 } }), base);
+  assert.ok(toolScore("speed", { facts: { ...sp, udpLoss: 10 } }) < base);
+  assert.ok(toolScore("speed", { facts: { ...sp, quic: false } }) < toolScore("speed", { facts: { ...sp, udpLoss: 10 } }));
+  assert.equal(toolScore("ipv6", { facts: { v6: true, native: true } }) - toolScore("ipv6", { facts: { v6: true, native: true, blackhole: true } }), 15);
+  assert.equal(toolScore("who", { facts: { problems: 0, tunnel: "wireguard", mss: 1380 } }), toolScore("who", { facts: { problems: 0 } }));
+});
