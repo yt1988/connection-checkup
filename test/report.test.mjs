@@ -148,6 +148,7 @@ test("line and tunnel: UDP, QUIC, the path MTU and a tunnel to a data center (ea
   // a tunnel alone is no finding; with a data center IP it is
   assert.deepEqual(keys({ who: { facts: { tunnel: "wireguard" } } }), []);
   assert.deepEqual(keys({ who: { facts: { tunnel: "wireguard", dc: true } } }), ["x_tunnel_dc"]);
+  assert.deepEqual(keys({ who: { facts: { tunnel: "pppoe", dc: true } } }), []);
   assert.deepEqual(keys({ who: { facts: { tunnel: "other" } }, ipqs: { facts: { type: "hosting" } } }), ["x_tunnel_dc"]);
   // the authoritative DNS's resolver country comes before who's guess
   assert.deepEqual(f({ dns: { facts: { resolverCountry: "US" } }, who: { facts: { dnsCountry: "JP", ipCountry: "JP" } } })[0].params, { a: "US", b: "JP" });

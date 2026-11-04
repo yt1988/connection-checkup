@@ -153,7 +153,8 @@ export function crossFindings(results) {
   }
   if (sp && sp.quic === false) out.push({ level: "warn", key: "x_udp_blocked" });
   else if (sp && num(sp.udpLoss) != null && sp.udpLoss >= 5) out.push({ level: "warn", key: "x_udp_loss", params: { loss: Math.round(sp.udpLoss) } });
-  if (who && who.tunnel && ((ipqs && ipqs.type === "hosting") || who.dc)) out.push({ level: "warn", key: "x_tunnel_dc" });
+  // PPPoE shrinks the MTU too, but it's the home line, not a proxy
+  if (who && who.tunnel && who.tunnel !== "pppoe" && ((ipqs && ipqs.type === "hosting") || who.dc)) out.push({ level: "warn", key: "x_tunnel_dc" });
   const lv = { bad: 0, warn: 1, ok: 2 };
   return out.sort((a, b) => lv[a.level] - lv[b.level]).slice(0, 4);
 }
