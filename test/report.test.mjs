@@ -164,3 +164,8 @@ test("line and tunnel in the scores: UDP in the speed test, the black hole in IP
   assert.equal(toolScore("ipv6", { facts: { v6: true, native: true } }) - toolScore("ipv6", { facts: { v6: true, native: true, blackhole: true } }), 15);
   assert.equal(toolScore("who", { facts: { problems: 0, tunnel: "wireguard", mss: 1380 } }), toolScore("who", { facts: { problems: 0 } }));
 });
+
+test("the DNS-region finding credits DB-IP when the country is the authoritative DNS's, not otherwise", () => {
+  assert.equal(crossFindings({ dns: { facts: { resolverCountry: "US" } }, who: { facts: { ipCountry: "JP" } } })[0].geo, "dbip");
+  assert.equal(crossFindings({ who: { facts: { dnsCountry: "US", ipCountry: "JP" } } })[0].geo, undefined);
+});

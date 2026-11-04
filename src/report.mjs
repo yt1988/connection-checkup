@@ -142,7 +142,8 @@ export function crossFindings(results) {
   }
   // the resolver as the authoritative DNS saw it (dns) when there is one, else as who guessed it
   const resolver = (dns && dns.resolverCountry) || (who && who.dnsCountry), exit = (who && who.ipCountry) || (ipqs && ipqs.country);
-  if (resolver && exit && resolver !== exit) out.push({ level: "warn", key: "x_dns_region", params: { a: resolver, b: exit } });
+  // the authoritative DNS locates resolvers with DB-IP, whose licence (CC BY 4.0) wants a credit wherever it shows
+  if (resolver && exit && resolver !== exit) out.push({ level: "warn", key: "x_dns_region", params: { a: resolver, b: exit }, ...(dns && dns.resolverCountry ? { geo: "dbip" } : {}) });
   if (sp && home && (sp.bloat === "D" || sp.bloat === "F") && num(home.median) != null && home.median > 150) out.push({ level: "warn", key: "x_bloat" });
   if (v6 && v6.v6 === true && v6.slower) out.push({ level: "warn", key: "x_v6_slow" });
   // line and tunnel: what the Tokyo server sees of UDP (speed), the path MTU (ipv6) and the TCP handshake (who)

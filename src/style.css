@@ -72,6 +72,7 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 .finds li::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: var(--muted); }
 .finds li[data-lv="bad"]::before { background: var(--t5); } .finds li[data-lv="warn"]::before { background: var(--t3); } .finds li[data-lv="ok"]::before { background: var(--t1); }
 .finds li .src { color: var(--muted); font-size: 12px; white-space: nowrap; margin-left: auto; padding-left: 8px; }
+.finds li .src a { color: inherit; }
 .finds:empty { display: none; }
 .hero .finds { min-height: 0; }
 .cross-h { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: -8px; }
