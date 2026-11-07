@@ -1,9 +1,8 @@
 # AGENTS.md
 
 For anyone working on this repository, people or AI agents. The README says what Network X-Ray is for visitors.
-This file covers how to work on it. The design decisions, including the ideas that were turned down, are in
-[docs/decisions.md](docs/decisions.md). 1ms.dog's operating notes (accounts, the other tools, routines) are in the
-private repository 1ms-shell.
+This file covers how to work on it. The technical reasons behind the design are in [docs/design.md](docs/design.md).
+1ms.dog's operating notes are in the private repository 1ms-shell.
 
 ## What this is
 
@@ -41,8 +40,8 @@ npm run dev          # wrangler dev on http://localhost:8797
 
 - `http://localhost:8797/zh-cn/?mock=1` runs the whole report from `test/fixtures/` without framing any tool.
   Use it for the report, the findings, the share link and the card.
-- A real run (`?start=1`) does not work from localhost. The tools only allow check.1ms.dog to frame them
-  (`frame-ancestors`), so every tool ends as "stopped". To test against real tools, use the live site.
+- A real run (`?start=1`) does not work from localhost. The tools only let the checkup's deployed origin frame
+  them (`frame-ancestors`), so every tool ends as "stopped". To test against real tools, use the deployed site.
 - A shared report can be built in Node from the fixtures with `encodeSummary`, `summaryOf` and `encodeFull`
   (`src/share.mjs`), using `overall` and `keyStats` (`src/report.mjs`). Opening that link on the local server or
   the live site is the quickest way to see a finding that your own connection doesn't produce, such as a tunnel
@@ -73,16 +72,15 @@ Test by hand as well:
 
 ## Deploy
 
-Every push to `main` deploys. Cloudflare Workers Builds runs `npm ci && npm test` and then `npx wrangler deploy`,
-and the change is live 30–90 seconds later. To confirm a deploy, compare the hash in `public/assets/app.*.js` with
-the one https://check.1ms.dog/zh-cn/ references. `wrangler.toml` binds no domain: the 1ms.dog shell routes
-check.1ms.dog to this Worker and injects the navigation, the language and theme sync, and the tools' addresses.
+`npx wrangler deploy` uploads `public/` and the Worker. With Cloudflare Workers Builds connected to the
+repository, every push to `main` runs `npm ci && npm test` and then `npx wrangler deploy`, and the change is live
+30–90 seconds later. To confirm a deploy, compare the hash in `public/assets/app.*.js` with the one
+`https://<your-domain>/zh-cn/` references.
 
-On 1ms.dog, **changes to styles or layout are shown to the site owner before they are pushed**: screenshots or a
-local preview, with options to choose from. Text, scoring and fixes are pushed directly.
-
-After a deploy, 1ms.dog's operators run the site-wide checks for this tool from 1ms-shell
-(`npm run check -- check`, and `npm run mobile -- check` for phone layout).
+`wrangler.toml` binds no domain. Bind `<your-domain>` to the Worker in the Cloudflare dashboard, then build with
+`SITE_URL=https://<your-domain> FRAME_SRC="https://<tools-domain> https://*.<tools-domain>" npm run build`. Whatever
+sits in front of the page has to inject the `<meta name="<id>">` tags for the tools. The tools themselves have to
+implement the embed protocol and allow `<your-domain>` to frame them.
 
 ## What it depends on
 
@@ -103,14 +101,14 @@ Never hard-code a domain. Without the tag, a tool is marked unavailable. On loca
 | `lag` | Not framed. The packet-loss and stall findings link to it |
 
 **The embed protocol.** Each tool is framed with `?embed=checkup` and posts `progress`, `size`, `result` and
-`error` messages to check.1ms.dog only. The page accepts messages only from frames it opened, and only from each
+`error` messages to the checkup's origin only. The page accepts messages only from frames it opened, and only from each
 tool's own origin. A `result` carries `grade`, `score`, `headline`, `stats`, `findings`, `path` and `facts`. The
 `facts` keys are fixed per tool: **every key may be missing, and the report must still work without it.** The
 authoritative description of the protocol is `docs/checkup.md` in 1ms-shell. The keys this page reads are the ones
 in `src/report.mjs`.
 
 **The share dialog** (`public/assets/share/`) is versioned in 1ms-shell. Update it by copying the files over
-unchanged and bumping `?v=` in both imports in `src/app.js`. The 1ms-shell check compares them byte for byte.
+unchanged and bumping `?v=` in both imports in `src/app.js`.
 
 ## Rules that are easy to break
 
