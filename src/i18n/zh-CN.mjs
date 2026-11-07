@@ -54,6 +54,7 @@ export default {
   x_ai_blocked: "AI 服务都用不了：出口 IP 在{cc}，ChatGPT、Claude 这类服务不对这里开放。换一个其他地区的节点。",
   x_dns_region: "DNS 服务器和出口 IP 不在同一个地方（DNS 在{a}，出口在{b}），有的网站能据此看出你在用代理。",
   x_bloat: "网络一忙就卡：下载时延迟明显升高，平时访问常用服务也偏慢。",
+  to_lag: "找出卡在哪一段",
   x_v6_slow: "IPv6 比 IPv4 慢，优先走 IPv6 的网站会因此变慢。",
   x_udp_blocked: "UDP 出不去，QUIC 被挡：视频通话、游戏和 HTTP/3 会退回 TCP，或者干脆连不上。在代理软件里打开 UDP 转发，或者换一个支持 UDP 的协议。",
   x_udp_loss: "UDP 丢包 {loss}%：视频通话和游戏会卡顿、断续。问题多半出在代理或线路上，换一个节点或线路再测一次。",

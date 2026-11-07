@@ -139,7 +139,7 @@ test("line and tunnel: UDP, QUIC, the path MTU and a tunnel to a data center (ea
   const keys = results => f(results).map(x => x.key);
   // QUIC blocked wins over the loss figure; loss under 5% says nothing
   assert.deepEqual(keys({ speed: { facts: { quic: false, udpLoss: 40 } } }), ["x_udp_blocked"]);
-  assert.deepEqual(f({ speed: { facts: { quic: true, udpLoss: 12.4 } } }), [{ level: "warn", key: "x_udp_loss", params: { loss: 12 } }]);
+  assert.deepEqual(f({ speed: { facts: { quic: true, udpLoss: 12.4 } } }), [{ level: "warn", key: "x_udp_loss", params: { loss: 12 }, lag: true }]);
   assert.deepEqual(keys({ speed: { facts: { quic: true, udpLoss: 3 } } }), []);
   // the black hole names the largest size that got through, or 1400 when none was measured
   assert.deepEqual(f({ ipv6: { facts: { v6: false, blackhole: true, mtu: 1420 } } })[0].params, { mtu: 1420 });
@@ -168,4 +168,10 @@ test("line and tunnel in the scores: UDP in the speed test, the black hole in IP
 test("the DNS-region finding credits DB-IP when the country is the authoritative DNS's, not otherwise", () => {
   assert.equal(crossFindings({ dns: { facts: { resolverCountry: "US" } }, who: { facts: { ipCountry: "JP" } } })[0].geo, "dbip");
   assert.equal(crossFindings({ who: { facts: { dnsCountry: "US", ipCountry: "JP" } } })[0].geo, undefined);
+});
+
+test("loss and a stalling line point to Network Diagnosis; other findings don't", () => {
+  const lag = results => crossFindings(results).filter(x => x.lag).map(x => x.key);
+  assert.deepEqual(lag({ speed: { facts: { bloat: "F", udpLoss: 20, quic: true } }, home: { facts: { median: 300 } } }).sort(), ["x_bloat", "x_udp_loss"]);
+  assert.deepEqual(lag({ speed: { facts: { quic: false } }, ipv6: { facts: { blackhole: true } } }), []);
 });

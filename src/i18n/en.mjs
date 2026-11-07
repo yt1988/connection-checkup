@@ -54,6 +54,7 @@ export default {
   x_ai_blocked: "No AI service works: your exit IP is in a region where ChatGPT, Claude and similar services aren't offered ({cc}). Try a server in another country.",
   x_dns_region: "Your DNS resolver and exit IP are in different places (DNS: {a}, exit: {b}). Some sites can use that to spot a proxy.",
   x_bloat: "The line jams under load: latency jumps while downloading, and common services are slow too.",
+  to_lag: "Find where it slows down",
   x_v6_slow: "IPv6 is slower than IPv4, so sites that prefer IPv6 load more slowly.",
   x_udp_blocked: "UDP can't get out and QUIC is blocked: video calls, games and HTTP/3 fall back to TCP or don't connect at all. Turn on UDP forwarding in your proxy app, or switch to a protocol that carries UDP.",
   x_udp_loss: "{loss}% of UDP packets are lost: video calls and games will stutter. The cause is usually the proxy or the route; try another server or line and test again.",

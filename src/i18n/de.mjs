@@ -54,6 +54,7 @@ export default {
   x_ai_blocked: "Kein KI-Dienst funktioniert: Deine Ausgangs-IP liegt in einer Region, in der ChatGPT, Claude und ähnliche Dienste nicht angeboten werden ({cc}). Probier einen Server in einem anderen Land.",
   x_dns_region: "Dein DNS-Server und deine Ausgangs-IP liegen an verschiedenen Orten (DNS: {a}, Ausgang: {b}). Manche Websites erkennen daran einen Proxy.",
   x_bloat: "Die Leitung staut sich unter Last: Beim Download schießt die Latenz hoch, und gängige Dienste sind ebenfalls langsam.",
+  to_lag: "Finden, wo es hakt",
   x_v6_slow: "IPv6 ist langsamer als IPv4. Websites, die IPv6 bevorzugen, laden deshalb langsamer.",
   x_udp_blocked: "UDP kommt nicht durch und QUIC ist blockiert: Videoanrufe, Spiele und HTTP/3 weichen auf TCP aus oder verbinden gar nicht. Schalte in deiner Proxy-App die UDP-Weiterleitung ein oder wechsle zu einem Protokoll, das UDP überträgt.",
   x_udp_loss: "{loss} % der UDP-Pakete gehen verloren: Videoanrufe und Spiele ruckeln. Meist liegt es am Proxy oder an der Route; probier einen anderen Server oder eine andere Leitung und miss noch einmal.",

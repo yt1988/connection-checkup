@@ -54,6 +54,7 @@ export default {
   x_ai_blocked: "Ningún servicio de IA funciona: tu IP de salida está en {cc}, donde ChatGPT, Claude y similares no están disponibles. Prueba con un servidor de otro país.",
   x_dns_region: "Tu servidor DNS y tu IP de salida están en lugares distintos (DNS en {a}, salida en {b}). Algunos sitios lo usan para detectar un proxy.",
   x_bloat: "La línea se atasca con carga: la latencia se dispara al descargar y los servicios habituales también van lentos.",
+  to_lag: "Averigua dónde se atasca",
   x_v6_slow: "IPv6 va más lento que IPv4, así que los sitios que prefieren IPv6 cargan más despacio.",
   x_udp_blocked: "El UDP no sale y QUIC está bloqueado: las videollamadas, los juegos y HTTP/3 vuelven a TCP o no conectan. Activa el reenvío UDP en tu app de proxy o cambia a un protocolo que lleve UDP.",
   x_udp_loss: "Se pierde el {loss} % de los paquetes UDP: las videollamadas y los juegos van a trompicones. Suele ser cosa del proxy o de la ruta; prueba con otro servidor o línea y vuelve a medir.",

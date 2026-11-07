@@ -224,7 +224,7 @@ import { regionName } from "./region.mjs";
   function renderFinds(R) {
     const cross = crossFindings(R);
     const own = topFindings(R, 4).filter(f => !cross.some(x => x.key === "x_leak" && /webrtc/i.test(f.text)));
-    $("#finds").innerHTML = cross.map(x => findLi({ level: x.level, text: crossText(x), geo: x.geo }, t("cross_h"))).concat(own.map(f => findLi(f, D.names[f.tool]))).slice(0, 4).join("");
+    $("#finds").innerHTML = cross.map(x => findLi({ level: x.level, text: crossText(x), geo: x.geo, lag: x.lag }, t("cross_h"))).concat(own.map(f => findLi(f, D.names[f.tool]))).slice(0, 4).join("");
   }
 
   async function start() {
@@ -285,7 +285,10 @@ import { regionName } from "./region.mjs";
   const gradeEl = (el, g, txt = el) => { txt.textContent = g || "–"; el.className = el.className.replace(/\bt\d\b/g, "").trim() + (g ? " " + gradeTier(g) : ""); if (g) el.dataset.g = g; else delete el.dataset.g; };
   // a cross-tool finding that names a country DB-IP found carries its credit (CC BY 4.0), in the licence's own words
   const DBIP = ` · <a href="https://db-ip.com" target="_blank" rel="noopener">IP geolocation by DB-IP</a>`;
-  const findLi = (f, src) => `<li data-lv="${esc(f.level)}"><span>${esc(f.text)}</span>${src ? `<span class="src">${esc(src)}${f.geo === "dbip" ? DBIP : ""}</span>` : ""}</li>`;
+  // loss and stalls: Network Diagnosis finds which stretch of the path it is (the shell's meta names its origin), as
+  // a pill on its own line under the finding (the user's pick of two, 2026-11-07)
+  const toLag = () => { const o = tool("lag"); return o ? `<span class="to-lag">${xlink(o + D.paths[D.lang], esc(t("to_lag")))}</span>` : ""; };
+  const findLi = (f, src) => `<li data-lv="${esc(f.level)}"><span>${esc(f.text)}${f.lag ? toLag() : ""}</span>${src ? `<span class="src">${esc(src)}${f.geo === "dbip" ? DBIP : ""}</span>` : ""}</li>`;
   const crossText = x => t(x.key, Object.fromEntries(Object.entries(x.params || {}).map(([k, v]) => [k, typeof v === "string" && /^[A-Z]{2}$/.test(v) ? country(v) : v])));
   const resHTML = r => `<p class="sec-head ${gradeLevel(r.grade)}">${esc(r.headline)}</p><ul class="stats">${r.stats.map(s => `<li><span>${esc(s.label)}</span><b>${esc(s.value)}</b></li>`).join("")}</ul><ul class="finds">${r.findings.map(f => findLi(f)).join("")}</ul>`;
 

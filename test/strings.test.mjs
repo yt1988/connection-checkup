@@ -17,7 +17,7 @@ test("every key the page uses exists in every language", async () => {
     ...["system", "light", "dark"].map(x => "th_" + x), ...["wait", "run", "done", "timeout", "error", "na", "stopped"].map(x => "st_" + x),
     ...["ap", "a", "b", "c", "d", "f"].map(x => "v_" + x), ...[1, 2, 3].map(x => "ph_" + x), ...SECTIONS.map(s => "sec_" + s.id),
     ...["privacy", "conn"].flatMap(s => ["ok", "warn", "bad"].map(l => `s_${s}_${l}`)),
-    ...["x_hosting_tz", "x_leak", "x_split", "x_ai_blocked", "x_dns_region", "x_bloat", "x_v6_slow", "x_blackhole", "x_udp_blocked", "x_udp_loss", "x_tunnel_dc"], "start", "stop", "again",
+    ...["x_hosting_tz", "x_leak", "x_split", "x_ai_blocked", "x_dns_region", "x_bloat", "x_v6_slow", "x_blackhole", "x_udp_blocked", "x_udp_loss", "x_tunnel_dc", "to_lag"], "start", "stop", "again",
   ].filter(k => !k.endsWith("_")));
   assert.ok(keys.size > 60, "found " + keys.size + " keys");
   for (const [lang] of LANGS) {

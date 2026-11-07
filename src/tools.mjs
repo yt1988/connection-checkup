@@ -22,6 +22,7 @@ export const sectionOf = id => SECTIONS.find(s => s.tools.includes(id));
 export const DEFAULT_ORIGINS = {
   who: "https://who.1ms.dog", ipqs: "https://ipqs.1ms.dog", egress: "https://egress.1ms.dog", ipv6: "https://ipv6.1ms.dog",
   dns: "https://dns.1ms.dog", unlock: "https://unlock.1ms.dog", home: "https://1ms.dog", speed: "https://speed.1ms.dog",
+  lag: "https://lag.1ms.dog",   // not a step of the checkup: where loss and stalls link to
 };
 
 // the tools' names, as the 1ms.dog bar shows them (1ms-shell src/sites.js); the home page is the brand

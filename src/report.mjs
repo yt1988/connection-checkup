@@ -120,7 +120,7 @@ const mostCommon = arr => { const c = new Map(); for (const v of arr) if (v) c.s
 
 // The cross-tool findings (docs/checkup.md: seven rules, and the line-and-tunnel four), worst first, at most four.
 // Each is a string key with its parameters (country codes, for the page to name in its language; numbers as they
-// are) and a level: "bad" | "warn" | "ok".
+// are) and a level: "bad" | "warn" | "ok". `lag`: loss or a line that stalls, which Network Diagnosis (lag) can locate.
 export function crossFindings(results) {
   const F = id => (results[id] && results[id].facts && typeof results[id].facts === "object" ? results[id].facts : null);
   const who = F("who"), ipqs = F("ipqs"), eg = F("egress"), un = F("unlock"), v6 = F("ipv6"), sp = F("speed"), home = F("home"), dns = F("dns");
@@ -144,7 +144,7 @@ export function crossFindings(results) {
   const resolver = (dns && dns.resolverCountry) || (who && who.dnsCountry), exit = (who && who.ipCountry) || (ipqs && ipqs.country);
   // the authoritative DNS locates resolvers with DB-IP, whose licence (CC BY 4.0) wants a credit wherever it shows
   if (resolver && exit && resolver !== exit) out.push({ level: "warn", key: "x_dns_region", params: { a: resolver, b: exit }, ...(dns && dns.resolverCountry ? { geo: "dbip" } : {}) });
-  if (sp && home && (sp.bloat === "D" || sp.bloat === "F") && num(home.median) != null && home.median > 150) out.push({ level: "warn", key: "x_bloat" });
+  if (sp && home && (sp.bloat === "D" || sp.bloat === "F") && num(home.median) != null && home.median > 150) out.push({ level: "warn", key: "x_bloat", lag: true });
   if (v6 && v6.v6 === true && v6.slower) out.push({ level: "warn", key: "x_v6_slow" });
   // line and tunnel: what the Tokyo server sees of UDP (speed), the path MTU (ipv6) and the TCP handshake (who)
   if (v6 && v6.blackhole === true) {
@@ -153,7 +153,7 @@ export function crossFindings(results) {
     out.push({ level: "bad", key: "x_blackhole", params: { mtu: ok.length ? Math.min(...ok) : 1400 } });
   }
   if (sp && sp.quic === false) out.push({ level: "warn", key: "x_udp_blocked" });
-  else if (sp && num(sp.udpLoss) != null && sp.udpLoss >= 5) out.push({ level: "warn", key: "x_udp_loss", params: { loss: Math.round(sp.udpLoss) } });
+  else if (sp && num(sp.udpLoss) != null && sp.udpLoss >= 5) out.push({ level: "warn", key: "x_udp_loss", params: { loss: Math.round(sp.udpLoss) }, lag: true });
   // PPPoE shrinks the MTU too, but it's the home line, not a proxy
   if (who && who.tunnel && who.tunnel !== "pppoe" && ((ipqs && ipqs.type === "hosting") || who.dc)) out.push({ level: "warn", key: "x_tunnel_dc" });
   const lv = { bad: 0, warn: 1, ok: 2 };
