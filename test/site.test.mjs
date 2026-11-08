@@ -77,3 +77,8 @@ test("the page's own scripts are ES2019: no ?., ??, or ||= &&= ??= (Safari befor
   for (const [f, s] of [...await Promise.all(files.map(async f => [f, await readFile(new URL(f, root), "utf8")])), ["index.html (inline)", (html.match(/<script>([\s\S]*?)<\/script>/g) || []).join("")]])
     assert.doesNotMatch(s, /\?\.(?!\d)|\?\?|(\|\||&&)=/, f);
 });
+
+test("the copied share dialog is ES2019 too (1ms-shell share v9 and later)", async () => {
+  const dir = new URL("../public/assets/share/", import.meta.url);
+  for (const f of (await readdir(dir)).filter(f => f.endsWith(".js"))) assert.doesNotMatch(await readFile(new URL(f, dir), "utf8"), /\?\.(?!\d)|\?\?|(\|\||&&)=/, f);
+});
