@@ -68,3 +68,12 @@ test("the root's language redirect keeps the path, so an English shared report o
   const h = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
   assert.match(h, /location\.replace\(P\[l\]\+location\.pathname\.slice\(1\)\+location\.search\+location\.hash\)/);
 });
+
+test("the page's own scripts are ES2019: no ?., ??, or ||= &&= ??= (Safari before 13.1 and Chrome before 80 can't parse them)", async () => {
+  const root = new URL("../public/", import.meta.url);
+  const files = (await readdir(new URL("assets/", root))).filter(f => /^(app|l)\..*\.js$/.test(f)).map(f => "assets/" + f);
+  assert.ok(files.length >= 11, "the page script and 10 string files");
+  const html = await readFile(new URL("index.html", root), "utf8");
+  for (const [f, s] of [...await Promise.all(files.map(async f => [f, await readFile(new URL(f, root), "utf8")])), ["index.html (inline)", (html.match(/<script>([\s\S]*?)<\/script>/g) || []).join("")]])
+    assert.doesNotMatch(s, /\?\.(?!\d)|\?\?|(\|\||&&)=/, f);
+});
