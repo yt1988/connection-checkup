@@ -10,9 +10,9 @@ const read = f => readFile(new URL("../" + f, import.meta.url), "utf8");
 const all = (s, re) => [...s.matchAll(re)].map(m => m[1]);
 
 test("every key the page uses exists in every language", async () => {
-  const [app, page, build, worker] = await Promise.all(["src/app.js", "src/page.html", "scripts/build.mjs", "src/worker.js"].map(read));
+  const [app, page, build, worker, msreport] = await Promise.all(["src/app.js", "src/page.html", "scripts/build.mjs", "src/worker.js", "src/msreport.mjs"].map(read));
   const keys = new Set([
-    ...all(app, /\bt\("(\w+)"/g), ...all(build, /\bT\("(\w+)"/g), ...all(worker, /\bS\.(\w+)/g),
+    ...all(app, /\bt\("(\w+)"/g), ...all(build, /\bT\("(\w+)"/g), ...all(worker, /\bS\.(\w+)/g), ...all(msreport, /\bt\("(\w+)"/g),
     ...all(page, /data-i="(\w+)"/g), ...all(page, /\{\{a:(\w+)\}\}/g),
     ...["system", "light", "dark"].map(x => "th_" + x), ...["wait", "run", "done", "timeout", "error", "na", "stopped"].map(x => "st_" + x),
     ...["ap", "a", "b", "c", "d", "f"].map(x => "v_" + x), ...[1, 2, 3].map(x => "ph_" + x), ...SECTIONS.map(s => "sec_" + s.id),

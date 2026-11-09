@@ -42,8 +42,9 @@ async function loadI18n() {
   return out;
 }
 
-// Strings only the build uses (the page already shows them); everything else goes to the browser
-const BUILD_ONLY = new Set(["name", "seo_title", "seo_desc", "seo_kw", "og_sub", "h1", "docs", "lang_label", "faq_h", "og_tag", "weight"]);
+// Strings only the build uses (the page already shows them); everything else goes to the browser. og_sub is not
+// build-only any more: the report dialog's sentence uses it (src/msreport.mjs).
+const BUILD_ONLY = new Set(["name", "seo_title", "seo_desc", "seo_kw", "h1", "docs", "lang_label", "faq_h", "og_tag", "weight"]);
 const CHEV = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>';
 
 export async function build({ check = false } = {}) {

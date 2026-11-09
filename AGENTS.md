@@ -18,6 +18,7 @@ A number in the report that looks wrong is almost always the tool's number: chec
 | `src/tools.mjs` | The tools, the phases, the five sections and their weights, the tools' names in 10 languages, the development origins |
 | `src/report.mjs` | The scores, the section and overall grades, and the cross-tool findings. Pure functions, unit-tested |
 | `src/share.mjs` | The report in a link (`/<lang>/r/<summary>#<full>`) and back |
+| `src/msreport.mjs` | What the page answers the shell's "report a problem" dialog with: one sentence, the run as JSON (IPs masked, under 6 KB), and the readings as one-tap picks |
 | `src/region.mjs` | Region names and flags. TW has a fixed name in every language and the `cn` flag (see the decisions) |
 | `src/app.js` | The page: the runner, the message handling, the report, the share card. Bundled by esbuild |
 | `src/worker.js` | Preview titles and images for `/r/<summary>`. Anything else gets a bare 404 |
@@ -56,6 +57,7 @@ second, so run all of it. The table says which file covers what, so you know whe
 |---|---|
 | Scores, grades, cross-tool findings (`src/report.mjs`) | `test/report.test.mjs` |
 | The link format (`src/share.mjs`) | `test/share.test.mjs` |
+| What a problem report carries (`src/msreport.mjs`) | `test/msreport.test.mjs` |
 | A string, or a key the page uses | `test/strings.test.mjs`. Every language needs every key with the same `{placeholders}`, and the new key goes in its list of keys the page uses |
 | Region names (`src/region.mjs`) | `test/region.test.mjs`. Nothing else in `src/` may name Taiwan or call `Intl.DisplayNames` for regions itself |
 | The build, headers, CSP, page markup, the share component copy | `test/site.test.mjs`. It also fails if any served script contains a regex lookbehind |
@@ -69,6 +71,9 @@ Test by hand as well:
   stay empty: the card is not allowed to cut a word off with "…".
 - **Strings:** French uses a no-break space before `:` `;` `?` `!`. Country names come from `Intl.DisplayNames`
   in the nominative form, so write the country in parentheses or after a colon, never as "in {cc}".
+- **The problem report:** the dialog and its entry belong to 1ms-shell, so it needs the shell in front of the page
+  (the deployed site). Run a checkup, open "Report a problem" in the foot, and the "this result" row must show the
+  sentence and the JSON, with no complete IP address, and the box must offer the picks as one-tap answers.
 
 ## Deploy
 

@@ -82,3 +82,25 @@ test("the copied share dialog is ES2019 too (1ms-shell share v9 and later)", asy
   const dir = new URL("../public/assets/share/", import.meta.url);
   for (const f of (await readdir(dir)).filter(f => f.endsWith(".js"))) assert.doesNotMatch(await readFile(new URL(f, dir), "utf8"), /\?\.(?!\d)|\?\?|(\|\||&&)=/, f);
 });
+
+test("the page answers the shell's report dialog with this run (window.msReport)", async () => {
+  const h = await page("");
+  const src = (h.match(/<script src="\/assets\/(app\.[0-9a-f]+\.js)"/) || [])[1];
+  assert.ok(src, "the page script");
+  const js = await readFile(new URL("../public/assets/" + src, import.meta.url), "utf8");
+  assert.match(js, /window\.msReport\s*=/, "window.msReport is defined");
+  assert.match(js, /summary:\s*\w+\(/, "and returns a summary");   // msReport(...) → { summary, data, picks }
+});
+
+test("every string the report dialog uses is shipped to the browser", async () => {
+  const h = await page("");
+  const sName = (h.match(/<script src="\/assets\/(l\.[a-z-]+\.[0-9a-f]+\.js)"/) || [])[1];
+  assert.ok(sName, "the strings file");
+  const js = await readFile(new URL("../public/assets/" + sName, import.meta.url), "utf8");
+  const L = JSON.parse(js.replace(/^window\.L1MS=/, "").replace(/;\s*$/, ""));
+  // the sentence, the picks and the verdict: every key src/msreport.mjs reaches for (og_sub left BUILD_ONLY for this)
+  const keys = ["app_name", "og_sub", "tools_sum", "partial", "k_unlock", "k_down", "v_none",
+    "v_ap", "v_a", "v_b", "v_c", "v_d", "v_f"];
+  for (const s of SECTIONS) keys.push("sec_" + s.id);
+  for (const k of keys) assert.ok(k in L, k + " is not in " + sName);
+});

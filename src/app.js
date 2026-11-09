@@ -9,6 +9,7 @@ import { TOOLS, PHASES, SECTIONS, PHASE_TIMEOUT, DEFAULT_ORIGINS } from "./tools
 import { overall, crossFindings, keyStats, sectionFindings, sectionStats, topFindings, gradeTier, gradeLevel, gradeKey } from "./report.mjs";
 import { encodeSummary, decodeSummary, encodeFull, decodeFull, sharePath, summaryOf } from "./share.mjs";
 import { regionName } from "./region.mjs";
+import { msReport } from "./msreport.mjs";
 
 (function () {
   "use strict";
@@ -435,6 +436,15 @@ import { regionName } from "./region.mjs";
     $("#progTxt").innerHTML = "&nbsp;";
     setGo("idle");
   }
+
+  /* ---------- reporting a problem (the shell's dialog) ---------- */
+  // The dialog asks the page for what the visitor saw when they report a problem: one sentence in their language, the
+  // run as JSON (IPs masked, small enough for the dialog's 6 KB) and the readings as one-tap picks. Attached only when
+  // a report is on screen: a finished checkup, a full shared report, or a summary-only shared link.
+  window.msReport = () => {
+    if (RUN || !OV) return null;
+    return msReport(LAST, OV, { t, lang: D.lang, page: location.pathname, shared: SHARED, ts: SUM ? SUM.ts : undefined });
+  };
 
   // a checkup moves data (the speed test) and takes 90 seconds, so the page waits for Start unless the visitor turned
   // auto-run on (remembered in this browser) or came by a link that asks for it
