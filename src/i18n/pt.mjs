@@ -62,6 +62,8 @@ export default {
   x_blackhole: "Há um buraco negro de PMTU: pacotes grandes são descartados sem aviso e alguns sites ficam carregando sem fim. Ajuste a MTU do proxy ou do roteador para {mtu} ou menos.",
   partial: "Este link traz só o resumo, sem os detalhes completos.",
   share: "Compartilhar",
+  report_result: "O resultado parece errado?",
+  report_prompt: "Este resultado parece errado:",
   share_text: "O check-up da minha conexão: {detail}. E a sua?",
   share_desc: "{n} testes de uma vez, nota geral {total}: identidade e privacidade, qualidade do IP, streaming e IA, conectividade e velocidade. Teste a sua conexão também.",
   card_sub: "Oito testes de uma vez",

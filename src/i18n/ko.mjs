@@ -62,6 +62,8 @@ export default {
   x_blackhole: "PMTU 블랙홀이 있어요. 큰 패킷이 조용히 버려져서 로딩이 끝나지 않는 사이트가 생겨요. 프록시나 공유기의 MTU를 {mtu} 이하로 맞춰 보세요.",
   partial: "이 링크에는 요약만 있고 자세한 결과는 없어요.",
   share: "공유",
+  report_result: "결과가 이상한가요?",
+  report_prompt: "이 결과가 이상해요:",
   share_text: "내 인터넷 점검 결과: {detail}. 당신은 어때요?",
   share_desc: "{n}가지 테스트를 한 번에, 종합 등급 {total}: 신원과 프라이버시, IP 품질, 스트리밍·AI, 연결 상태, 속도. 내 인터넷도 점검해 보세요.",
   card_sub: "8가지 테스트를 한 번에",

@@ -62,6 +62,8 @@ export default {
   x_blackhole: "There's a PMTU black hole: large packets are dropped silently, so some sites hang while loading. Set the MTU on your proxy or router to {mtu} or lower.",
   partial: "This link only has the summary, not the full details.",
   share: "Share",
+  report_result: "Result seems wrong?",
+  report_prompt: "This result seems wrong:",
   share_text: "My network checkup: {detail}. How does yours compare?",
   share_desc: "{n} tests in one run, overall grade {total}: identity and privacy, IP quality, streaming and AI, connectivity and speed. Check your own connection.",
   card_sub: "Eight tests in one run",

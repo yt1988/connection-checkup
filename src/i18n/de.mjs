@@ -62,6 +62,8 @@ export default {
   x_blackhole: "Es gibt ein PMTU-Blackhole: Große Pakete werden stillschweigend verworfen, manche Websites laden dann endlos. Stell die MTU an Proxy oder Router auf {mtu} oder weniger.",
   partial: "Dieser Link enthält nur die Zusammenfassung, nicht alle Details.",
   share: "Teilen",
+  report_result: "Stimmt das Ergebnis nicht?",
+  report_prompt: "Dieses Ergebnis scheint falsch zu sein:",
   share_text: "Mein Netz-Check: {detail}. Wie sieht deiner aus?",
   share_desc: "{n} Tests in einem Durchgang, Gesamtnote {total}: Identität und Privatsphäre, IP-Qualität, Streaming und KI, Erreichbarkeit und Tempo. Prüf deine eigene Verbindung.",
   card_sub: "Acht Tests in einem Durchgang",

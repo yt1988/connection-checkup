@@ -181,7 +181,7 @@ import { msReport } from "./msreport.mjs";
       c.querySelector("[data-st-txt]").textContent = t("st_wait"); c.querySelector("[data-head]").textContent = ""; c.querySelector("[data-frame]").replaceChildren(); c.querySelector("[data-res]").replaceChildren(); c.querySelector("[data-err]").textContent = "";
       toggleTool(id, false); const ch = chip(id); ch.dataset.st = "wait"; ch.querySelector("em").textContent = ""; }
     toggleTools(false);
-    LAST = null; OV = null; $("#shareBtn").disabled = true; prog(0); document.title = TITLE;
+    LAST = null; OV = null; syncReportEntry(); $("#shareBtn").disabled = true; prog(0); document.title = TITLE;
     $("#vGradeT").textContent = "–"; $("#vGrade").className = "g-big"; delete $("#vGrade").dataset.g; ring(0);
     $("#vHead").className = "v-head"; $("#vHead").innerHTML = "&nbsp;"; $("#vSub").innerHTML = "&nbsp;"; $("#vMiss").textContent = "";
     for (const k of ["Ipqs", "Unlock", "Down"]) { $("#k" + k).textContent = "–"; $("#k" + k + "S").textContent = ""; }
@@ -326,6 +326,7 @@ import { msReport } from "./msreport.mjs";
     }
     $("#toolsSum").textContent = t("tools_sum", { done: OV.done.length, all: TOOLS.length });
     $("#shareBtn").disabled = false;
+    syncReportEntry();
   }
   // the test log and its cards open only when the visitor asks; a collapsed frame keeps a sliver visible
   function toggleTool(id, open) {
@@ -435,9 +436,17 @@ import { msReport } from "./msreport.mjs";
     }).catch(() => {});
     $("#progTxt").innerHTML = "&nbsp;";
     setGo("idle");
+    syncReportEntry();
   }
 
   /* ---------- reporting a problem (the shell's dialog) ---------- */
+  // Keep this tool-local entry inert without the shell (and in any embedded view). Its nonempty
+  // prefill lets the shell ask which reading is wrong and offer msReport().picks instead of sending it as-is.
+  function syncReportEntry() {
+    const button = $("#reportResult");
+    button.hidden = !OV || !!RUN || Q.has("embed") || window.self !== window.top || typeof window.msOpenReport !== "function";
+    button.setAttribute("data-ms-report", t("report_prompt"));
+  }
   // The dialog asks the page for what the visitor saw when they report a problem: one sentence in their language, the
   // run as JSON (IPs masked, small enough for the dialog's 6 KB) and the readings as one-tap picks. Attached only when
   // a report is on screen: a finished checkup, a full shared report, or a summary-only shared link.

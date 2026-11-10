@@ -62,6 +62,8 @@ export default {
   x_blackhole: "有 PMTU 黑洞：大包被悄悄丢掉，有的网站会一直卡在加载中。把代理或路由器的 MTU 调到 {mtu} 或更小。",
   partial: "这个链接只带了摘要，没有完整细节。",
   share: "分享",
+  report_result: "结果不对？",
+  report_prompt: "这个结果不对：",
   share_text: "我的网络体检：{detail}。你的呢？",
   share_desc: "{n} 项检测一次测完，总等级 {total}：身份与隐私、IP 质量、解锁、连通性、速度。也测测你的网络。",
   card_sub: "8 项检测，一次测完",
