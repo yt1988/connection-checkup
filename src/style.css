@@ -25,8 +25,11 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 .chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .chips li { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border-radius: 14px; background: var(--soft); font-size: 12.5px; color: var(--muted); }
 .chips li i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
-.chips li em { font-style: normal; font-family: var(--f-num); font-variant-numeric: tabular-nums; color: var(--fg); }
-.chips li em:empty { display: none; }
+/* the state slot is always there and always the same width (a percentage, then a tick or a cross): a tool starting or
+   finishing never re-wraps the row, which would push the whole page down */
+.chips li em { display: inline-block; min-width: 4ch; text-align: end; font-style: normal; font-family: var(--f-num); font-variant-numeric: tabular-nums; color: var(--fg); }
+/* before a run there is no state to show: the row stays compact, and the reserved slots appear with the run */
+.hero[data-st="idle"] .chips li em { display: none; }
 .chips li[data-st="run"] { background: var(--ink-soft); color: var(--fg); } .chips li[data-st="run"] i { background: var(--ink); animation: blink 1s infinite; }
 .chips li[data-st="done"] { color: var(--fg); } .chips li[data-st="done"] i { background: var(--t1); } .chips li[data-st="done"] em { color: var(--t1); }
 .chips li[data-st="timeout"] i, .chips li[data-st="error"] i { background: var(--t5); } .chips li[data-st="timeout"] em, .chips li[data-st="error"] em { color: var(--t5); }
@@ -75,6 +78,8 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 .finds li .src { color: var(--muted); font-size: 12px; white-space: nowrap; margin-left: auto; padding-left: 8px; }
 .finds li .src a { color: inherit; }
 .finds li .to-lag a.xl { color: var(--ink); font-weight: 600; }
+/* a reserved row: the same height as a finding, no dot, so the list holds its height until the answers arrive */
+.finds li.ph::before { visibility: hidden; }
 .to-lag { display: block; margin-top: 6px; }
 .to-lag a.xl { border: 1px solid color-mix(in srgb, var(--ink) 55%, transparent); background: var(--ink-soft); border-radius: 999px; padding: 2px 10px; font-size: 12.5px; }
 .finds:empty { display: none; }
@@ -99,8 +104,10 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 .prog { position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--ink-soft); overflow: hidden; border-radius: 0 0 var(--r) var(--r); }
 .prog i { display: block; height: 100%; width: 100%; background: var(--ink); transform: scaleX(0); transform-origin: left; transition: transform .4s linear; }
 .hero[data-st="idle"] .prog, .hero[data-st="idle"] .verdict, .hero[data-st="idle"] .keys, .hero[data-st="idle"] #finds, .hero[data-st="idle"] #crossH, .hero[data-st="idle"] #vMiss { display: none; }
-.hero:not([data-st="idle"]) .intro, .hero[data-st="done"] .chips { display: none; }
-.hero[data-st="run"] .chips { justify-content: flex-start; }
+.hero:not([data-st="idle"]) .intro { display: none; }
+/* the chips stay after the run (each with its ✓ or failure), which is what keeps the verdict and everything under it
+   from jumping up when the report appears */
+.hero:not([data-st="idle"]) .chips { justify-content: flex-start; }
 /* a shared report: a banner above the hero, with the way back to one's own checkup */
 
 /* the five sections */
@@ -116,7 +123,8 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 /* the grade colour over the boxes' grey (the .t1-.t5 classes come earlier, so they need the extra class) */
 :is(.g-big, .sec-g).t1 { color: var(--t1); } :is(.g-big, .sec-g).t2 { color: var(--t2); } :is(.g-big, .sec-g).t3 { color: var(--t3); }
 :is(.g-big, .sec-g).t4 { color: var(--t4); } :is(.g-big, .sec-g).t5 { color: var(--t5); }
-.sec-head { font-size: 14px; font-weight: 600; line-height: 1.45; min-height: 1.45em; }
+/* the sentence can be one or two lines (it is one line while the card is only queued), so two are always reserved */
+.sec-head { font-size: 14px; font-weight: 600; line-height: 1.45; min-height: 2.9em; }
 .sec-head.ok { color: var(--t1); } .sec-head.warn { color: var(--t3); } .sec-head.bad { color: var(--t5); }
 .sec-head.m { color: var(--muted); font-weight: 400; }
 .stats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
@@ -124,6 +132,12 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
 .stats li span { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .stats li b { font: 600 15px/22px var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .stats:empty { display: none; }
+/* a section card reserves the numbers' row from the start: one row of tiles, empty until the first answer */
+.sec .stats { min-height: 55px; }
+.sec .stats:empty { display: grid; }
+/* a link that carries only the summary has no numbers or findings to make room for: its cards stay short */
+#secs.sum .sec-head { min-height: 1.45em; }
+#secs.sum .stats { min-height: 0; display: none; }
 .sec .finds li { font-size: 13px; }
 .sec-links { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; margin-top: auto; }
 .sec-links:empty { display: none; }
@@ -196,9 +210,16 @@ a.xl svg { width: .95em; height: .95em; flex: none; }
   .hero { padding: 12px 16px 0; gap: 14px; }
   .verdict { grid-template-columns: 84px minmax(0, 1fr); gap: 12px; }
   .btn.share { grid-column: 2; justify-self: start; height: 34px; }
+  /* on a phone the share button has a row of its own: keep the row (invisible) until the report exists, so the
+     verdict doesn't grow when the run ends */
+  .btn.share:disabled { display: inline-flex; visibility: hidden; }
   .g-big { height: 84px; font-size: 42px; border-radius: 18px; }
   .v-head { font-size: 16px; }
+  /* on a phone every line here wraps, so the run's own sentences and their room are reserved up front */
+  .v-text { min-height: 113px; }
   .keys { gap: 8px; }
+  .keys em { min-height: 32px; }
+  .hero .finds { min-height: 232px; }
   .keys li { padding: 9px 10px 10px; }
   /* long languages: the titles and notes wrap rather than end in "…" */
   .keys li > span, .keys em { white-space: normal; overflow: visible; line-height: 1.3; }

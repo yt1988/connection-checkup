@@ -89,7 +89,8 @@ test("the page answers the shell's report dialog with this run (window.msReport)
   assert.ok(src, "the page script");
   const js = await readFile(new URL("../public/assets/" + src, import.meta.url), "utf8");
   assert.match(js, /window\.msReport\s*=/, "window.msReport is defined");
-  assert.match(js, /summary:\s*\w+\(/, "and returns a summary");   // msReport(...) → { summary, data, picks }
+  // msReport(...) → { summary, data, picks }; the minifier's identifier can start with $, so \w alone is not enough
+  assert.match(js, /summary:\s*[\w$]+\(/, "and returns a summary");
 });
 
 test("every string the report dialog uses is shipped to the browser", async () => {

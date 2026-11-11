@@ -71,7 +71,7 @@ import { msReport } from "./msreport.mjs";
 
   /* ---------- state ---------- */
   const card = id => $(`.tool[data-tool="${id}"]`), chip = id => $(`#chips li[data-tool="${id}"]`);
-  const S = { status: {}, results: {}, errors: {}, frames: {}, heights: {}, pct: {} };   // status: wait | run | done | timeout | error | na | stopped
+  const S = { status: {}, results: {}, errors: {}, frames: {}, heights: {}, pct: {}, secSig: {} };   // status: wait | run | done | timeout | error | na | stopped
   let RUN = null, LAST = null, OV = null, TIMER = null, SHARED = false, PHASE = 0, RECV = null;
   // Blocked: an ad blocker (uBlock, AdGuard…) stops the tools' probes, and they fail or say nothing. The run ends as
   // soon as that is clear, instead of waiting out every phase: nothing heard SILENCE ms into the first phase, or more
@@ -83,7 +83,8 @@ import { msReport } from "./msreport.mjs";
   function setStatus(id, st) {
     S.status[id] = st;
     const c = card(id); c.dataset.st = st; c.querySelector("[data-st-txt]").textContent = t("st_" + st);
-    const ch = chip(id); ch.dataset.st = st; ch.querySelector("em").textContent = st === "run" ? (S.pct[id] != null ? S.pct[id] + "%" : "…") : st === "done" ? "✓" : st === "wait" ? "" : t("st_" + st);
+    // the chip shows one short state, all of them within the reserved slot: the long wording is the tool card's
+    const ch = chip(id); ch.dataset.st = st; ch.querySelector("em").textContent = st === "run" ? (S.pct[id] != null ? S.pct[id] + "%" : "…") : st === "done" ? "✓" : st === "wait" ? "" : st === "na" || st === "stopped" ? "–" : "✕";
     $("#toolsSum").textContent = t("tools_sum", { done: TOOLS.filter(x => S.results[x]).length, all: TOOLS.length });
   }
   const prog = n => { $("#progBar").style.transform = `scaleX(${Math.min(1, Math.max(0, n)).toFixed(3)})`; };
@@ -176,18 +177,23 @@ import { msReport } from "./msreport.mjs";
     setTimeout(res, ms);
   });
 
+  // a reserved row: the page is drawn at full height before the first answer, and filled in place as answers arrive
+  const ph = n => Array.from({ length: n }, () => `<li class="ph" aria-hidden="true">&nbsp;</li>`).join("");
   function reset() {
     for (const id of TOOLS) { S.status[id] = "wait"; delete S.results[id]; delete S.errors[id]; delete S.frames[id]; delete S.heights[id]; delete S.pct[id]; const c = card(id); c.dataset.st = "wait";
       c.querySelector("[data-st-txt]").textContent = t("st_wait"); c.querySelector("[data-head]").textContent = ""; c.querySelector("[data-frame]").replaceChildren(); c.querySelector("[data-res]").replaceChildren(); c.querySelector("[data-err]").textContent = "";
       toggleTool(id, false); const ch = chip(id); ch.dataset.st = "wait"; ch.querySelector("em").textContent = ""; }
     toggleTools(false);
+    S.secSig = {};
+    $("#secs").classList.remove("sum");
+    $("#chips").hidden = false;
     LAST = null; OV = null; syncReportEntry(); $("#shareBtn").disabled = true; prog(0); document.title = TITLE;
     $("#vGradeT").textContent = "–"; $("#vGrade").className = "g-big"; delete $("#vGrade").dataset.g; ring(0);
     $("#vHead").className = "v-head"; $("#vHead").innerHTML = "&nbsp;"; $("#vSub").innerHTML = "&nbsp;"; $("#vMiss").textContent = "";
     for (const k of ["Ipqs", "Unlock", "Down"]) { $("#k" + k).textContent = "–"; $("#k" + k + "S").textContent = ""; }
-    $("#finds").replaceChildren();
-    for (const s of SECTIONS) { const g = $("#sg-" + s.id); g.textContent = "–"; g.className = "sec-g"; delete g.dataset.g; $("#sh-" + s.id).className = "sec-head m"; $("#sh-" + s.id).innerHTML = "&nbsp;";
-      $("#ss-" + s.id).replaceChildren(); $("#sf-" + s.id).replaceChildren(); $("#sl-" + s.id).replaceChildren(); }
+    $("#finds").innerHTML = ph(4);
+    for (const s of SECTIONS) { const g = $("#sg-" + s.id); g.textContent = "–"; g.className = "sec-g"; delete g.dataset.g; $("#sh-" + s.id).className = "sec-head m"; $("#sh-" + s.id).textContent = t("st_wait");
+      $("#ss-" + s.id).replaceChildren(); $("#sf-" + s.id).innerHTML = ph(4); $("#sl-" + s.id).innerHTML = "&nbsp;"; }
     $("#toolsSum").textContent = "";
     $("#blocked").hidden = true;
   }
@@ -204,6 +210,7 @@ import { msReport } from "./msreport.mjs";
     $("#vHead").textContent = t("ph_run", { n: PHASE + 1, text: t("ph_" + (PHASE + 1)) });
     const running = TOOLS.filter(id => S.status[id] === "run").map(id => D.names[id] + (S.pct[id] != null ? ` ${S.pct[id]}%` : " …"));
     $("#vSub").textContent = running.length ? running.join(" · ") : t("waiting");
+    renderSections(S.results, false);
   }
   // the key numbers and findings from the results so far: filled in as each tool reports
   function renderLive() {
@@ -225,7 +232,10 @@ import { msReport } from "./msreport.mjs";
   function renderFinds(R) {
     const cross = crossFindings(R);
     const own = topFindings(R, 4).filter(f => !cross.some(x => x.key === "x_leak" && /webrtc/i.test(f.text)));
-    $("#finds").innerHTML = cross.map(x => findLi({ level: x.level, text: crossText(x), geo: x.geo, lag: x.lag }, t("cross_h"))).concat(own.map(f => findLi(f, D.names[f.tool]))).slice(0, 4).join("");
+    const rows = cross.map(x => findLi({ level: x.level, text: crossText(x), geo: x.geo, lag: x.lag }, t("cross_h"))).concat(own.map(f => findLi(f, D.names[f.tool]))).slice(0, 4);
+    // the four rows are reserved from the start; a shorter list keeps its empty rows so the bar below never moves
+    while (rows.length < 4) rows.push(`<li class="ph" aria-hidden="true">&nbsp;</li>`);
+    $("#finds").innerHTML = rows.join("");
   }
 
   async function start() {
@@ -233,7 +243,9 @@ import { msReport } from "./msreport.mjs";
     if (SHARED) { SHARED = false; history.replaceState(null, "", D.paths[D.lang] + location.search); }
     reset();
     const me = RUN = { abort: false, t0: performance.now(), heard: false, blocked: false };
-    $("#hero").dataset.st = "run"; $("#secs").hidden = true; $("#tools").hidden = false; $("#mockNote").hidden = !MOCK;
+    // every block is on the page from the click: the five sections with their slots reserved, the test log, the
+    // findings rows. Nothing appears later, so nothing moves as the answers come in (tool-contract §4「多路查询」).
+    $("#hero").dataset.st = "run"; $("#secs").hidden = false; $("#tools").hidden = false; $("#mockNote").hidden = !MOCK;
     $("#vGrade").className = "g-big wait";
     setGo("run");
     for (const id of TOOLS) if (!tool(id)) setStatus(id, "na");
@@ -253,6 +265,7 @@ import { msReport } from "./msreport.mjs";
         if (me.abort || me.blocked) { clearInterval(iv); r(); }
       }, 200); })]);
       for (const id of ids) if (S.status[id] === "run") setStatus(id, me.abort || me.blocked ? "stopped" : "timeout");
+      renderSections(S.results, false);   // a section whose tools just settled fills in where it stands
       if (me.blocked) break;
       if (!me.abort && performance.now() - t0 < 400) await new Promise(r => setTimeout(r, 400));   // let a quick phase be seen
     }
@@ -293,6 +306,41 @@ import { msReport } from "./msreport.mjs";
   const crossText = x => t(x.key, Object.fromEntries(Object.entries(x.params || {}).map(([k, v]) => [k, typeof v === "string" && /^[A-Z]{2}$/.test(v) ? country(v) : v])));
   const resHTML = r => `<p class="sec-head ${gradeLevel(r.grade)}">${esc(r.headline)}</p><ul class="stats">${r.stats.map(s => `<li><span>${esc(s.label)}</span><b>${esc(s.value)}</b></li>`).join("")}</ul><ul class="finds">${r.findings.map(f => findLi(f)).join("")}</ul>`;
 
+  // The five section cards. They are drawn when the run starts, each with its state; a section whose tools have all
+  // settled is filled where it stands, the others still say what they are waiting for. Every slot (stats, findings,
+  // links) holds its height, so the card never grows: the numbers replace placeholders in place (tool-contract §4).
+  function drawSection(sec, sr, R) {
+    gradeEl($("#sg-" + sec.id), sr.grade);
+    const sh = $("#sh-" + sec.id);
+    if (!sr.done.length) { sh.className = "sec-head m"; sh.textContent = t("sec_none"); }
+    else if (sec.tools.length === 1) { sh.className = "sec-head " + gradeLevel(sr.grade); sh.textContent = R[sec.tools[0]].headline || t("s_" + sec.id + "_" + (gradeLevel(sr.grade) || "ok")); }
+    else { sh.className = "sec-head " + gradeLevel(sr.grade); sh.textContent = t(`s_${sec.id}_${gradeLevel(sr.grade) || "ok"}`); }
+    $("#ss-" + sec.id).innerHTML = sectionStats(sec, R).map(s => `<li><span>${esc(s.label)}</span><b>${esc(s.value)}</b></li>`).join("");
+    const fs = sectionFindings(sec, R).map(f => findLi(f, sec.tools.length > 1 ? D.names[f.tool] : ""));
+    while (fs.length < 4) fs.push(`<li class="ph" aria-hidden="true">&nbsp;</li>`);
+    $("#sf-" + sec.id).innerHTML = fs.join("");
+    $("#sl-" + sec.id).innerHTML = sr.done.map(id => { const o = tool(id); if (!o) return ""; const href = R[id].path ? o + R[id].path : toolHome(id); return xlink(href, esc(sec.tools.length > 1 ? `${t("full")} · ${D.names[id]}` : t("full"))); }).join("") || "&nbsp;";
+  }
+  // `all` at the end of the run; before that only a section whose tools have all settled is filled, and the rest only
+  // move from "Queued" to "Testing" — same row, same height.
+  function renderSections(R, all) {
+    const O = overall(R);
+    for (const sec of SECTIONS) {
+      // only redraw when something in this section changed (liveLine runs on every progress message)
+      const sig = sec.tools.map(id => (S.status[id] || "wait") + (S.results[id] ? "+" : "-")).join();
+      if (!all && S.secSig[sec.id] === sig) continue;
+      S.secSig[sec.id] = sig;
+      const settled = sec.tools.every(id => S.status[id] && S.status[id] !== "wait" && S.status[id] !== "run");
+      if (!all && !settled) {
+        const st = sec.tools.map(id => S.status[id] || "wait");
+        const sh = $("#sh-" + sec.id); sh.className = "sec-head m";
+        sh.textContent = t(st.some(s => s !== "wait") ? "st_run" : "st_wait");
+        continue;
+      }
+      drawSection(sec, O.sections[sec.id], R);
+    }
+  }
+
   // the whole report from the tools' results: `shared` is someone else's (no frames to show)
   function render(rep, shared) {
     const R = rep.tools;
@@ -306,17 +354,7 @@ import { msReport } from "./msreport.mjs";
     renderKeys(R, "");
     renderFinds(R);
     // the sections
-    for (const sec of SECTIONS) {
-      const sr = OV.sections[sec.id];
-      gradeEl($("#sg-" + sec.id), sr.grade);
-      const sh = $("#sh-" + sec.id);
-      if (!sr.done.length) { sh.className = "sec-head m"; sh.textContent = t("sec_none"); }
-      else if (sec.tools.length === 1) { sh.className = "sec-head " + gradeLevel(sr.grade); sh.textContent = R[sec.tools[0]].headline || t("s_" + sec.id + "_" + (gradeLevel(sr.grade) || "ok")); }
-      else { sh.className = "sec-head " + gradeLevel(sr.grade); sh.textContent = t(`s_${sec.id}_${gradeLevel(sr.grade) || "ok"}`); }
-      $("#ss-" + sec.id).innerHTML = sectionStats(sec, R).map(s => `<li><span>${esc(s.label)}</span><b>${esc(s.value)}</b></li>`).join("");
-      $("#sf-" + sec.id).innerHTML = sectionFindings(sec, R).map(f => findLi(f, sec.tools.length > 1 ? D.names[f.tool] : "")).join("");
-      $("#sl-" + sec.id).innerHTML = sr.done.map(id => { const o = tool(id); if (!o) return ""; const href = R[id].path ? o + R[id].path : toolHome(id); return xlink(href, esc(sec.tools.length > 1 ? `${t("full")} · ${D.names[id]}` : t("full"))); }).join("");
-    }
+    renderSections(R, true);
     // the tool cards: a shared report has no frames, so each shows its result in full
     if (shared) for (const id of TOOLS) {
       const c = card(id), r = R[id];
@@ -412,11 +450,13 @@ import { msReport } from "./msreport.mjs";
   /* ---------- a shared report ---------- */
   function showShared(sum, full) {
     SHARED = true;
+    // this page did not run the tests, so the chips have no states to show: the sections and the key numbers carry it
+    $("#chips").hidden = true;
     $("#tools").hidden = !full; $("#mockNote").hidden = true;
     if (full) { render(full, true); LAST = full; }
     else {
-      // only the summary: the grades and the key numbers, nothing else
-      $("#hero").dataset.st = "done"; $("#secs").hidden = false;
+      // only the summary: the grades and the key numbers, nothing else, so the cards keep no room for what is missing
+      $("#hero").dataset.st = "done"; $("#secs").hidden = false; $("#secs").classList.add("sum");
       OV = { grade: sum.total, sections: Object.fromEntries(SECTIONS.map(s => [s.id, { grade: sum.sections[s.id] }])) };
       gradeEl($("#vGrade"), sum.total, $("#vGradeT")); ring(1);
       const vh = $("#vHead"); vh.textContent = sum.total ? t("v_" + gradeKey(sum.total)) : t("v_none"); vh.className = "v-head " + gradeLevel(sum.total);
