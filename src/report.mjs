@@ -34,7 +34,7 @@ function speedScore(f) {
   if (num(f.up) != null && f.up < 5 && f.up < f.down / 20) s -= 8;      // an upload far behind the download
   s -= { C: 8, D: 15, F: 25 }[f.bloat] || 0;                            // latency under load
   if (num(f.idle) != null && f.idle > 100) s -= 5;
-  // UDP from the Tokyo server (rtc.1ms.dog): calls, games and HTTP/3 ride on it
+  // UDP from the server: calls, games and HTTP/3 ride on it
   if (f.quic === false) s -= 8;
   else s -= tiers(f.udpLoss, [2, 5, 20], [0, 3, 6, 12]) || 0;
   return clamp(s);
