@@ -65,7 +65,9 @@ import { msReport } from "./msreport.mjs";
   // the frame's address: the visitor's language folder (never the root, whose language redirect would change the
   // referrer the tool checks), plus the embed flag
   const embedURL = id => toolHome(id) + "?embed=checkup";
-  const XL = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5 7.5 8.5M12 10v3.5H2.5V4H6"/></svg>';
+  // xmlns is not an attribute in the DOM, so outerHTML serializing this icon (Dark Reader reloads every <svg> as a
+  // data: URL) would leave it out and the image would fail to decode; the page's own <svg> marks get it from the HTML.
+  const XL = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5 7.5 8.5M12 10v3.5H2.5V4H6"/></svg>';
   const xlink = (href, html) => `<a class="xl" href="${esc(href)}" target="_blank" rel="noopener">${html}${XL}</a>`;
   const country = cc => { if (!cc) return ""; try { return regionName(cc, D.lang); } catch (e) { return cc; } };
 

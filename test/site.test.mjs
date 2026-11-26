@@ -64,6 +64,19 @@ test("no served script uses regex lookbehind (Safari before 16.4 can't parse it)
   for (const f of files) assert.doesNotMatch(await readFile(new URL(f.replace(/\\/g, "/"), root), "utf8"), /\(\?<[=!]/, f);
 });
 
+test("every SVG the page draws at runtime names its namespace (Dark Reader reloads an <svg> as a data: URL)", async () => {
+  // outerHTML cannot carry the namespace, so an icon built in JS and serialized that way fails to decode unless the
+  // markup itself says xmlns. The page's own <svg> marks are HTML and get it from the shell's rewriter; scripts don't.
+  const root = new URL("../public/assets/", import.meta.url);
+  const files = (await readdir(root)).filter(f => /^app\..*\.js$/.test(f));
+  assert.ok(files.length, "the page script");
+  for (const f of files) {
+    const js = await readFile(new URL(f, root), "utf8");
+    const tags = js.match(/<svg\b[^>]*>/g) || [];
+    for (const tag of tags) assert.ok(tag.includes('xmlns="http://www.w3.org/2000/svg"'), f + ": " + tag.slice(0, 80));
+  }
+});
+
 test("the root's language redirect keeps the path, so an English shared report opens in the visitor's language", async () => {
   const h = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
   assert.match(h, /location\.replace\(P\[l\]\+location\.pathname\.slice\(1\)\+location\.search\+location\.hash\)/);
