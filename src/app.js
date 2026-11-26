@@ -437,7 +437,9 @@ import { msReport } from "./msreport.mjs";
   }
   $("#shareBtn").onclick = async () => {
     if (!LAST || !OV) return;
-    const { share } = await import("/assets/share/share.js?v=10");
+    const mod = await import("/assets/share/share.js?v=11").catch(() => null);
+    if (!mod) { window.msShareDown && window.msShareDown(); return; }
+    const { share } = mod;
     share({
       lang: D.lang, name: t("app_name"), file: "connection-checkup",
       show: [], never: ["ip"],
@@ -472,7 +474,7 @@ import { msReport } from "./msreport.mjs";
     if (!full) $("#vMiss").textContent = t("partial");
     // the shared-result banner is the share component's (1ms-shell docs/tool-contract.md §4): when it was measured,
     // and "test mine", which runs a whole checkup; no compare mode here, so no done()
-    import("/assets/share/share.js?v=10").then(({ received }) => {
+    import("/assets/share/share.js?v=11").then(({ received }) => {
       if (!SHARED) return;
       RECV = received({ lang: D.lang, ts: sum.ts, at: $("#hero"), test: () => { if (!RUN) start(); } });
     }).catch(() => {});
